@@ -1,0 +1,972 @@
+[
+  {
+    "title": "Introdução à lógica de programação",
+    "description": "Aprenda a organizar ideias em passos claros e execute seu primeiro programa em Python.",
+    "slug": "introducao-a-logica",
+    "icon": "brain",
+    "level": "Iniciante",
+    "lessons": [
+      {
+        "title": "Do problema ao primeiro comando",
+        "description": "Traduza uma tarefa do cotidiano para instruções que o computador consegue seguir.",
+        "objective": "Escrever uma sequência simples e identificar seu efeito na tela.",
+        "theory": "Imagine orientar alguém a chegar à biblioteca. “Vá até lá” faz sentido para quem conhece o caminho. Uma pessoa nova precisa de ações observáveis, como “vire à esquerda na portaria”. Descrever um problema com esse nível de precisão já é praticar lógica.\n\nEm Python, print() mostra uma informação na tela. As aspas delimitam o texto que você quer mostrar. Quando há várias chamadas a print(), o computador executa uma de cada vez, de cima para baixo. Antes de rodar o exemplo, tente prever qual frase aparecerá primeiro.",
+        "code": "print(\"Abra o caderno.\")\nprint(\"Escreva a data.\")",
+        "explanation": "A primeira linha mostra a primeira instrução. A segunda chamada exibe outra mensagem na linha seguinte. As aspas pertencem ao código e ficam de fora da saída.",
+        "note": "Use aspas comuns, simples ou duplas, e feche o par antes do parêntese.",
+        "minutes": 8,
+        "material": "https://docs.python.org/pt-br/3/library/functions.html#print",
+        "exercise": {
+          "title": "Escreva um roteiro",
+          "prompt": "Mostre dois passos para iniciar uma atividade na biblioteca. Escreva exatamente as duas frases da saída, uma por linha.",
+          "objective": "Praticar a ordem de execução e o uso de print().",
+          "level": "Básico",
+          "input": "Sem entrada",
+          "output": "Procure um livro.\nAnote o título.",
+          "hint": "Faça uma chamada a print() para cada frase.",
+          "solution": "print(\"Procure um livro.\")\nprint(\"Anote o título.\")",
+          "explanation": "Cada chamada escreve sua própria linha. A ordem das chamadas reproduz a ordem do roteiro."
+        },
+        "quiz": [
+          {
+            "prompt": "Se você trocar as duas chamadas a print() de posição, o que muda?",
+            "options": [
+              "A ordem das mensagens exibidas.",
+              "O idioma do Python.",
+              "A quantidade de linhas exibidas."
+            ],
+            "answer": 0,
+            "explanation": "Os comandos continuam válidos, mas passam a ser executados na nova ordem."
+          },
+          {
+            "prompt": "Qual instrução mostra a palavra Biblioteca na tela?",
+            "options": [
+              "print(Biblioteca)",
+              "print(\"Biblioteca\")",
+              "\"print(Biblioteca)\""
+            ],
+            "answer": 1,
+            "explanation": "As aspas indicam um texto literal e print() o envia para a saída."
+          }
+        ]
+      },
+      {
+        "title": "Divida para resolver",
+        "description": "Separe os dados de um problema, a transformação necessária e o resultado desejado.",
+        "objective": "Distinguir entrada, processamento e saída em uma tarefa curta.",
+        "theory": "Uma biblioteca quer saber quantos exemplares terá após uma doação. Você precisa do estoque atual e da quantidade recebida. A soma transforma esses dados em um resultado que pode ser comunicado.\n\nEsse recorte tem três partes. A entrada é o conjunto de dados disponíveis, o processamento é a operação feita com eles e a saída é o resultado apresentado. Os dados podem aparecer diretamente no código. Mais adiante você vai pedir esses valores a quem executa o programa.",
+        "code": "# Estoque atual e exemplares recebidos\nprint(12 + 4)",
+        "explanation": "Os números 12 e 4 representam a entrada conhecida. A soma produz 16. A função print() apresenta o resultado. O comentário lembra o significado dos números.",
+        "note": "Em Python, o trecho da linha depois de # é um comentário. Ele ajuda leitores do programa.",
+        "minutes": 9,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Organize as cadeiras",
+          "prompt": "Uma oficina dispõe de 18 cadeiras e recebe mais 7. Mostre o total calculando a soma dentro de print().",
+          "objective": "Identificar os dados de entrada e transformá-los em uma saída numérica.",
+          "level": "Básico",
+          "input": "18 e 7, definidos no código",
+          "output": "25",
+          "hint": "Escreva os números sem aspas para que o sinal + efetue uma soma.",
+          "solution": "print(18 + 7)",
+          "explanation": "Os dois números representam os grupos de cadeiras. A soma combina as quantidades e print() mostra o total."
+        },
+        "quiz": [
+          {
+            "prompt": "No exemplo da doação, o que corresponde ao processamento?",
+            "options": [
+              "A quantidade de livros já disponível.",
+              "A soma das duas quantidades.",
+              "O número mostrado na tela."
+            ],
+            "answer": 1,
+            "explanation": "O processamento é a ação que transforma os valores disponíveis no resultado procurado."
+          },
+          {
+            "prompt": "Qual saída print(3 + 2) produz?",
+            "options": [
+              "3 + 2",
+              "32",
+              "5"
+            ],
+            "answer": 2,
+            "explanation": "Como os dois valores são inteiros, o operador + calcula a soma antes da impressão."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Algoritmos",
+    "description": "Descreva soluções passo a passo e acompanhe a execução para encontrar erros.",
+    "slug": "algoritmos",
+    "icon": "route",
+    "level": "Iniciante",
+    "lessons": [
+      {
+        "title": "Desenhe uma sequência",
+        "description": "Transforme uma descrição em linguagem comum em uma sequência executável.",
+        "objective": "Planejar uma sequência com uma pré-condição e uma saída bem definida.",
+        "theory": "Um algoritmo é uma sequência de passos para resolver uma tarefa. Para preparar uma oficina, por exemplo, você pode começar contando participantes, distribuir os materiais e só então registrar o que sobrou. Trocar passos que dependem um do outro pode mudar o resultado.\n\nExperimente escrever as etapas em frases curtas antes de programar. Para uma oficina com oito inscritos e dois lápis por pessoa, o plano é conhecer o número de inscritos, multiplicar pelo material individual e exibir a quantidade necessária.",
+        "code": "inscritos = 8\nlapis_por_pessoa = 2\nprint(inscritos * lapis_por_pessoa)",
+        "explanation": "Atribuímos nomes às duas quantidades e usamos * para multiplicá-las. Quando print() é executado, os valores já estão definidos e o resultado é 16.",
+        "note": "Comentar as etapas com suas próprias palavras ajuda a conferir se nenhuma dependência foi esquecida.",
+        "minutes": 10,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Separe os materiais",
+          "prompt": "Há 6 equipes em uma feira e cada equipe precisa de 3 folhas. Defina as duas quantidades com nomes claros e mostre o número de folhas.",
+          "objective": "Transformar duas informações e uma regra em um algoritmo curto.",
+          "level": "Básico",
+          "input": "6 equipes e 3 folhas por equipe, definidos no código",
+          "output": "18",
+          "hint": "Defina equipes e folhas_por_equipe antes de usá-las no produto.",
+          "solution": "equipes = 6\nfolhas_por_equipe = 3\nprint(equipes * folhas_por_equipe)",
+          "explanation": "A multiplicação conta seis grupos iguais de três folhas. A última etapa imprime 18."
+        },
+        "quiz": [
+          {
+            "prompt": "Por que definir inscritos antes de usá-lo na multiplicação?",
+            "options": [
+              "Para impedir a exibição do resultado.",
+              "Porque Python só aceita multiplicações na primeira linha.",
+              "Porque o nome precisa ter um valor quando for lido."
+            ],
+            "answer": 2,
+            "explanation": "Um nome lido antes de receber um valor gera um erro."
+          },
+          {
+            "prompt": "Qual plano calcula a quantidade de cópias para uma turma?",
+            "options": [
+              "Conhecer o tamanho da turma, multiplicar pelas cópias individuais e exibir o total.",
+              "Exibir um total e depois decidir o tamanho da turma.",
+              "Escolher o nome do arquivo e encerrar."
+            ],
+            "answer": 0,
+            "explanation": "Cada etapa fornece a informação que a etapa seguinte utiliza."
+          }
+        ]
+      },
+      {
+        "title": "Teste de mesa",
+        "description": "Acompanhe o valor de um dado depois de cada instrução.",
+        "objective": "Prever o resultado de um algoritmo e localizar a etapa em que surge uma divergência.",
+        "theory": "Fazer um teste de mesa é simular o programa no papel. Anote os nomes usados e atualize os valores a cada linha. Isso ajuda a encontrar a primeira diferença entre o resultado que você esperava e o que o código realmente calcula.\n\nConsidere uma caixa com cinco lápis. Chegam três e depois alguém retira dois. O saldo passa por 5, 8 e 6. Compare esses valores com o exemplo. Você pode inserir um print() temporário depois de cada atualização para verificar suas anotações.",
+        "code": "saldo = 5\nsaldo = saldo + 3\nsaldo = saldo - 2\nprint(saldo)",
+        "explanation": "À direita de =, o Python lê o valor atual de saldo e calcula um novo valor. A atribuição guarda esse resultado usando o mesmo nome. Ao final, a tela mostra 6.",
+        "note": "Um teste de mesa acompanha cada linha. Registre até os resultados intermediários que o programa não exibe.",
+        "minutes": 10,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Siga os empréstimos",
+          "prompt": "Uma prateleira tem 10 livros. Quatro são emprestados e depois dois são devolvidos. Mostre o saldo após cada alteração, em duas linhas.",
+          "objective": "Verificar dois estados intermediários com um teste de mesa.",
+          "level": "Básico",
+          "input": "10 livros, 4 empréstimos e 2 devoluções, definidos no código",
+          "output": "6\n8",
+          "hint": "A primeira operação é uma subtração. Faça o primeiro print() antes da devolução.",
+          "solution": "saldo = 10\nsaldo = saldo - 4\nprint(saldo)\nsaldo = saldo + 2\nprint(saldo)",
+          "explanation": "A primeira impressão confirma que restam 6 livros. Somar as duas devoluções ao saldo atualizado leva a 8."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual é o valor de saldo imediatamente após saldo = saldo + 3 no exemplo?",
+            "options": [
+              "3",
+              "8",
+              "6"
+            ],
+            "answer": 1,
+            "explanation": "O saldo anterior era 5. A expressão soma 3 e guarda 8."
+          },
+          {
+            "prompt": "Para descobrir em qual etapa o resultado divergiu, o melhor é…",
+            "options": [
+              "mudar todos os valores ao mesmo tempo.",
+              "comparar somente a última linha.",
+              "anotar o estado após cada operação relevante."
+            ],
+            "answer": 2,
+            "explanation": "O primeiro estado diferente aponta a etapa que merece investigação."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Variáveis e tipos de dados",
+    "description": "Dê nomes aos valores e reconheça números, textos e valores lógicos.",
+    "slug": "variaveis-e-tipos",
+    "icon": "boxes",
+    "level": "Iniciante",
+    "lessons": [
+      {
+        "title": "Dê nomes aos dados",
+        "description": "Use variáveis para representar informações que podem mudar.",
+        "objective": "Atribuir valores, ler variáveis e reconhecer uma nova atribuição.",
+        "theory": "Uma variável é um nome que permite recuperar um valor. Em uma oficina, vagas pode indicar quantos lugares continuam disponíveis. A expressão vagas - 1 calcula um novo número. Para atualizar a disponibilidade, é preciso atribuir o resultado novamente.\n\nEscolha nomes que expliquem os dados. Quando um nome tem mais de uma palavra, uma convenção comum em Python é separar as palavras com sublinhados, como vagas_livres. Nomes diferentes podem apontar para valores iguais e continuar independentes em novas atribuições.",
+        "code": "vagas_livres = 12\ninscricoes = 3\nvagas_livres = vagas_livres - inscricoes\nprint(vagas_livres)",
+        "explanation": "vagas_livres começa em 12. A expressão calcula 12 menos 3 e guarda 9 no mesmo nome. inscricoes mantém o valor 3.",
+        "note": "O Python distingue maiúsculas de minúsculas. vagas e Vagas são nomes diferentes.",
+        "minutes": 9,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Atualize o estoque",
+          "prompt": "Um armário contém 15 cabos. Retire 4, atualize a variável cabos e exiba o que restou.",
+          "objective": "Aplicar uma nova atribuição com base no valor atual.",
+          "level": "Básico",
+          "input": "15 cabos e 4 retiradas, definidos no código",
+          "output": "11",
+          "hint": "Use cabos nos dois lados do sinal de atribuição.",
+          "solution": "cabos = 15\ncabos = cabos - 4\nprint(cabos)",
+          "explanation": "A expressão do lado direito lê 15 e calcula 11. O nome cabos passa a representar esse resultado."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual linha atualiza a quantidade guardada em vagas?",
+            "options": [
+              "vagas - 1",
+              "print(vagas)",
+              "vagas = vagas - 1"
+            ],
+            "answer": 2,
+            "explanation": "Uma expressão sozinha calcula um valor. A atribuição associa o novo resultado ao nome."
+          },
+          {
+            "prompt": "Qual nome descreve melhor o total de participantes?",
+            "options": [
+              "total_participantes",
+              "a",
+              "dado1"
+            ],
+            "answer": 0,
+            "explanation": "Um nome descritivo permite reconhecer o significado do valor ao reler o programa."
+          }
+        ]
+      },
+      {
+        "title": "Número, texto ou lógico?",
+        "description": "Compare os tipos int, float, str e bool em pequenos exemplos.",
+        "objective": "Escolher um tipo adequado e converter um texto numérico para realizar uma conta.",
+        "theory": "Um número inteiro, como 12, pode representar a quantidade de livros. Um número com parte decimal, como 2.5, pode indicar horas de estudo. Um texto entre aspas pode guardar o nome de um curso. True e False representam valores lógicos.\n\nO tipo influencia o significado das operações. Com números, + faz uma soma. Com dois textos, + junta os caracteres. Quando um texto contém um número inteiro válido, int() permite convertê-lo para realizar uma conta.",
+        "code": "print(\"2\" + \"3\")\nprint(2 + 3)\nprint(int(\"12\") + 1)",
+        "explanation": "As três linhas exibem 23, 5 e 13. Na primeira, o resultado é texto. Na última, a conversão ocorre antes da soma.",
+        "note": "No código Python, escreva 2.5 com ponto decimal. Uma vírgula pode separar valores e muda a interpretação.",
+        "minutes": 11,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Converta a duração",
+          "prompt": "A duração de uma atividade foi guardada como o texto “35”. Converta esse valor para inteiro, some 10 minutos e mostre o novo total.",
+          "objective": "Converter texto em inteiro antes de realizar uma operação numérica.",
+          "level": "Básico",
+          "input": "O texto \"35\", definido no código",
+          "output": "45",
+          "hint": "Comece com duracao = \"35\" e use int(duracao).",
+          "solution": "duracao = \"35\"\nprint(int(duracao) + 10)",
+          "explanation": "int() transforma o texto em um valor numérico. Somar 10 resulta em 45."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual valor tem tipo bool em Python?",
+            "options": [
+              "\"False\"",
+              "0",
+              "False"
+            ],
+            "answer": 2,
+            "explanation": "Sem aspas, False é um dos dois valores booleanos. Com aspas, seria um texto."
+          },
+          {
+            "prompt": "O que \"4\" + \"1\" produz?",
+            "options": [
+              "5",
+              "O texto \"41\".",
+              "Um erro de divisão."
+            ],
+            "answer": 1,
+            "explanation": "Os dois operandos são textos. O operador junta os caracteres na ordem em que aparecem."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Operadores",
+    "description": "Combine valores com operações aritméticas, comparações e expressões lógicas.",
+    "slug": "operadores",
+    "icon": "calculator",
+    "level": "Básico",
+    "lessons": [
+      {
+        "title": "Calcule com operadores",
+        "description": "Use operações aritméticas para repartir uma quantidade.",
+        "objective": "Distinguir divisão inteira e resto e controlar a ordem dos cálculos.",
+        "theory": "Imagine distribuir 23 cartões igualmente entre cinco grupos. A divisão inteira informa quantos cartões cada grupo recebe. O resto da divisão informa quantos cartões ficam de fora. Para inteiros positivos, // fornece a quantidade de grupos inteiros e % fornece o que sobra.\n\nPython segue uma ordem nas expressões. Multiplicações e divisões são avaliadas antes de somas e subtrações. Use parênteses para tornar a intenção visível e para alterar a ordem quando a conta exigir.",
+        "code": "cartoes = 23\ngrupos = 5\nprint(cartoes // grupos)\nprint(cartoes % grupos)",
+        "explanation": "O exemplo exibe 4 e depois 3. Cinco grupos recebem quatro cartões cada, utilizando vinte cartões. Sobram três.",
+        "note": "Antes de dividir, verifique se o divisor pode ser zero. Em Python, dividir um número por zero gera um erro.",
+        "minutes": 11,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html",
+        "exercise": {
+          "title": "Monte caixas completas",
+          "prompt": "Uma escola recebeu 38 lápis e cada caixa comporta 6. Exiba a quantidade de caixas completas e a quantidade de lápis avulsos, uma por linha.",
+          "objective": "Aplicar divisão inteira e resto a um problema de distribuição.",
+          "level": "Básico",
+          "input": "38 lápis e 6 por caixa, definidos no código",
+          "output": "6\n2",
+          "hint": "Use o mesmo dividendo e divisor nas operações // e %.",
+          "solution": "lapis = 38\ncapacidade = 6\nprint(lapis // capacidade)\nprint(lapis % capacidade)",
+          "explanation": "Seis caixas guardam 36 lápis. O resto da divisão informa que ainda há 2 lápis."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual expressão encontra o resto da divisão de 17 por 5?",
+            "options": [
+              "17 / 5",
+              "17 % 5",
+              "17 // 5"
+            ],
+            "answer": 1,
+            "explanation": "O operador % calcula o resto. Nesse caso, o resultado é 2."
+          },
+          {
+            "prompt": "Qual é o valor de (2 + 3) * 4?",
+            "options": [
+              "14",
+              "9",
+              "20"
+            ],
+            "answer": 2,
+            "explanation": "Os parênteses fazem a soma acontecer primeiro. O valor 5 é multiplicado por 4."
+          }
+        ]
+      },
+      {
+        "title": "Faça comparações",
+        "description": "Monte expressões que respondem a perguntas com verdadeiro ou falso.",
+        "objective": "Combinar condições de disponibilidade com operadores relacionais e lógicos.",
+        "theory": "Uma comparação como vagas > 0 responde se ainda há lugares disponíveis. O resultado é True ou False. Os símbolos == e != verificam igualdade e diferença. Para incluir o limite de uma faixa, use >= ou <=.\n\nTambém é possível combinar perguntas. and exige que as duas condições sejam verdadeiras. or aceita que pelo menos uma seja verdadeira. not inverte o valor lógico. Leia as condições em voz alta para conferir se elas representam a regra desejada.",
+        "code": "vagas = 2\ninscricoes_abertas = True\nprint(vagas > 0 and inscricoes_abertas)",
+        "explanation": "A condição vagas > 0 é verdadeira e as inscrições estão abertas. A combinação com and também é verdadeira, então a saída é True.",
+        "note": "Uma única igualdade, =, faz atribuição. Duas igualdades, ==, comparam valores.",
+        "minutes": 11,
+        "material": "https://docs.python.org/pt-br/3/library/stdtypes.html#boolean-operations-and-or-not",
+        "exercise": {
+          "title": "Teste a regra de acesso",
+          "prompt": "Um exercício extra exige nota pelo menos 7 e a entrega da prática. Defina nota como 7 e pratica_entregue como True. Exiba o resultado lógico da regra.",
+          "objective": "Combinar um limite inclusivo e um valor booleano com and.",
+          "level": "Básico",
+          "input": "nota = 7 e pratica_entregue = True, definidos no código",
+          "output": "True",
+          "hint": "O valor 7 satisfaz a regra. Use >= para incluir o limite.",
+          "solution": "nota = 7\npratica_entregue = True\nprint(nota >= 7 and pratica_entregue)",
+          "explanation": "A nota atinge o mínimo e a prática foi entregue. Com as duas condições verdadeiras, and devolve True."
+        },
+        "quiz": [
+          {
+            "prompt": "Se vagas vale 0, qual é o resultado de vagas > 0?",
+            "options": [
+              "True",
+              "False",
+              "0 vagas"
+            ],
+            "answer": 1,
+            "explanation": "A comparação pergunta se zero é estritamente maior que zero. Isso é falso."
+          },
+          {
+            "prompt": "Qual operador exige que dois testes sejam verdadeiros?",
+            "options": [
+              "and",
+              "or",
+              "not"
+            ],
+            "answer": 0,
+            "explanation": "and exige as duas condições. or aceita ao menos uma e not inverte um valor lógico."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Entrada e saída de dados",
+    "description": "Leia informações digitadas e apresente resultados que façam sentido para quem usa o programa.",
+    "slug": "entrada-e-saida",
+    "icon": "terminal",
+    "level": "Básico",
+    "lessons": [
+      {
+        "title": "Converse com o programa",
+        "description": "Leia uma linha de texto e transforme entradas numéricas antes de calcular.",
+        "objective": "Usar input() em uma tarefa com valores definidos durante a execução.",
+        "theory": "Até aqui, muitos valores estavam escritos no código. Com input(), o programa espera a pessoa digitar uma linha e pressionar Enter. O resultado é texto, mesmo quando contém apenas algarismos.\n\nSe você deseja calcular com os dados, faça uma conversão compatível. int(input()) serve para inteiros como 18. Para representar um número como 2.5, use float(). Comece com entradas válidas e teste valores diferentes depois da primeira execução.",
+        "code": "nome = input()\nidade = int(input())\nprint(\"Olá,\", nome)\nprint(\"No próximo ano você terá\", idade + 1, \"anos.\")",
+        "explanation": "Digite seu nome e pressione Enter. Depois digite sua idade como inteiro. A conversão permite somar um ano. A primeira chamada a print() separa o texto e o nome com um espaço.",
+        "note": "Para repetir o exemplo no Colab, execute a célula e responda a cada campo de entrada na ordem indicada.",
+        "minutes": 12,
+        "material": "https://docs.python.org/pt-br/3/library/functions.html#input",
+        "exercise": {
+          "title": "Conte os participantes",
+          "prompt": "Leia dois inteiros em linhas separadas, um para as inscrições da manhã e outro para as da tarde. Exiba a soma. Teste também uma turma com zero inscrições.",
+          "objective": "Ler e converter duas entradas numéricas.",
+          "level": "Básico",
+          "input": "12\n8",
+          "output": "20",
+          "hint": "Aplique int() em cada leitura. Somar os textos diretamente juntaria os algarismos.",
+          "solution": "manha = int(input())\ntarde = int(input())\nprint(manha + tarde)",
+          "explanation": "A primeira leitura guarda 12 e a segunda guarda 8. A soma numérica das entradas resulta em 20."
+        },
+        "quiz": [
+          {
+            "prompt": "Se você digitar 18, qual é o tipo retornado apenas por input()?",
+            "options": [
+              "int",
+              "bool",
+              "str"
+            ],
+            "answer": 2,
+            "explanation": "input() retorna texto. O tipo muda quando você aplica uma conversão explícita."
+          },
+          {
+            "prompt": "O que fazer para somar numericamente dois inteiros digitados?",
+            "options": [
+              "Usar int() em cada leitura antes da soma.",
+              "Somar os textos e converter somente o texto final.",
+              "Remover os parênteses de input()."
+            ],
+            "answer": 0,
+            "explanation": "Converter individualmente faz o operador + receber dois números."
+          }
+        ]
+      },
+      {
+        "title": "Formate os resultados",
+        "description": "Inclua nomes e números em frases legíveis com f-strings.",
+        "objective": "Formatar uma saída com rótulos e uma quantidade definida de casas decimais.",
+        "theory": "Um resultado é mais fácil de usar quando indica o que está sendo medido. A frase “Tempo médio: 2.5 h” comunica mais que um número isolado. Uma f-string permite montar esse texto com valores de variáveis.\n\nColoque a letra f antes das aspas e use chaves para indicar as expressões. O formato :.1f mostra uma casa decimal e :.2f mostra duas. Isso muda a aparência do número na mensagem. O valor usado nos cálculos seguintes continua disponível com sua precisão original.",
+        "code": "tempo = 5 / 2\nprint(f\"Tempo médio: {tempo:.1f} h\")",
+        "explanation": "A divisão produz 2.5. A expressão entre chaves coloca o resultado dentro da frase, em formato decimal com uma casa.",
+        "note": "Se a letra f for esquecida antes das aspas, o conteúdo entre chaves será exibido como texto.",
+        "minutes": 10,
+        "material": "https://docs.python.org/pt-br/3/tutorial/inputoutput.html",
+        "exercise": {
+          "title": "Mostre o tempo médio",
+          "prompt": "Leia os minutos de duas sessões de estudo, um inteiro por linha. Exiba a média com uma casa decimal no formato do exemplo.",
+          "objective": "Apresentar uma média com rótulo e unidade.",
+          "level": "Básico",
+          "input": "20\n25",
+          "output": "Média: 22.5 min",
+          "hint": "Some os dois tempos entre parênteses antes de dividir por 2. Use :.1f na f-string.",
+          "solution": "primeira = int(input())\nsegunda = int(input())\nmedia = (primeira + segunda) / 2\nprint(f\"Média: {media:.1f} min\")",
+          "explanation": "A soma dos tempos vale 45. A divisão por 2 dá 22.5 e a f-string acrescenta o rótulo e a unidade."
+        },
+        "quiz": [
+          {
+            "prompt": "Dentro de uma f-string, para que servem as chaves?",
+            "options": [
+              "Indicam um comentário.",
+              "Indicam expressões a inserir na mensagem.",
+              "Marcam o fim de uma linha."
+            ],
+            "answer": 1,
+            "explanation": "O Python avalia a expressão entre chaves e inclui o valor na string."
+          },
+          {
+            "prompt": "Como 3.0 aparece usando o formato :.2f?",
+            "options": [
+              "3",
+              "2",
+              "3.00"
+            ],
+            "answer": 2,
+            "explanation": "O formato de ponto fixo com precisão 2 exibe exatamente duas casas decimais."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Estruturas condicionais",
+    "description": "Faça o programa escolher caminhos diferentes de acordo com os dados.",
+    "slug": "condicionais",
+    "icon": "split",
+    "level": "Básico",
+    "lessons": [
+      {
+        "title": "Escolha entre dois caminhos",
+        "description": "Controle uma decisão com if e else.",
+        "objective": "Aplicar uma condição e verificar os dois resultados possíveis.",
+        "theory": "Uma condição permite escolher quais instruções serão executadas. Para liberar uma vaga, por exemplo, é necessário saber se ainda existe pelo menos um lugar. O bloco if roda quando a condição é verdadeira. O bloco else cobre o outro caso.\n\nDepois da condição, escreva dois-pontos e recue as linhas que pertencem ao bloco. Essa indentação faz parte da linguagem. Teste a regra nos dois caminhos, incluindo o valor de fronteira. Um estoque com zero unidades costuma revelar rapidamente uma comparação inadequada.",
+        "code": "vagas = 0\nif vagas > 0:\n    print(\"Inscrição disponível\")\nelse:\n    print(\"Turma lotada\")",
+        "explanation": "Com vagas igual a zero, o teste é falso e a saída é Turma lotada. Mude o valor para 1 e execute novamente para observar o outro caminho.",
+        "note": "Use quatro espaços de recuo por nível. Manter o mesmo recuo em todas as linhas de um bloco torna sua estrutura visível.",
+        "minutes": 12,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#if-statements",
+        "exercise": {
+          "title": "Controle o empréstimo",
+          "prompt": "Leia um inteiro não negativo que informa a quantidade de livros disponíveis. Mostre “Disponível” se houver ao menos um exemplar e “Indisponível” se a quantidade for zero.",
+          "objective": "Escolher uma mensagem conforme uma condição e testar a fronteira zero.",
+          "level": "Básico",
+          "input": "0",
+          "output": "Indisponível",
+          "hint": "Para testar o outro caminho, repita com 1. Use quantidade > 0.",
+          "solution": "quantidade = int(input())\nif quantidade > 0:\n    print(\"Disponível\")\nelse:\n    print(\"Indisponível\")",
+          "explanation": "Com zero, o primeiro teste falha e o else produz a mensagem pedida. Com qualquer entrada positiva, o primeiro caminho é executado."
+        },
+        "quiz": [
+          {
+            "prompt": "No exemplo da aula, qual valor já libera uma inscrição?",
+            "options": [
+              "0",
+              "1",
+              "-1"
+            ],
+            "answer": 1,
+            "explanation": "A comparação exige valor maior que zero. Entre as alternativas, somente 1 atende à regra."
+          },
+          {
+            "prompt": "Como o Python identifica as instruções de um bloco if?",
+            "options": [
+              "Pelo recuo das linhas após os dois-pontos.",
+              "Por aspas ao redor do bloco.",
+              "Pela quantidade de variáveis do programa."
+            ],
+            "answer": 0,
+            "explanation": "A indentação agrupa as linhas de cada bloco."
+          }
+        ]
+      },
+      {
+        "title": "Classifique por faixas",
+        "description": "Organize mais de duas possibilidades com if, elif e else.",
+        "objective": "Evitar sobreposição indevida de condições e testar limites de classificação.",
+        "theory": "Quando há mais de duas categorias, elif apresenta testes adicionais. Python avalia a cadeia de cima para baixo e executa o primeiro bloco cuja condição é verdadeira. Se nenhum teste passa, else cuida dos casos restantes.\n\nEm uma meta de estudo, 60 minutos ou mais podem significar “Meta atingida”. De 30 até 59, “Bom começo”. Menos de 30 indica “Em andamento”. Escreva os testes do limite mais alto para o mais baixo e confira os valores 29, 30, 59 e 60.",
+        "code": "minutos = 45\nif minutos >= 60:\n    print(\"Meta atingida\")\nelif minutos >= 30:\n    print(\"Bom começo\")\nelse:\n    print(\"Em andamento\")",
+        "explanation": "Para 45, o primeiro teste falha. O segundo é verdadeiro, por isso a saída é Bom começo. Os outros blocos deixam de ser avaliados.",
+        "note": "Uma sequência de vários if independentes pode executar mais de um bloco. Uma cadeia if/elif/else escolhe apenas o primeiro que atende à condição.",
+        "minutes": 12,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#if-statements",
+        "exercise": {
+          "title": "Leia o nível da bateria",
+          "prompt": "Leia um percentual inteiro entre 0 e 100. Mostre “Alta” para 70 ou mais, “Média” para 30 a 69 e “Baixa” para os demais valores válidos.",
+          "objective": "Construir categorias sem lacunas e com fronteiras inclusivas.",
+          "level": "Intermediário",
+          "input": "30",
+          "output": "Média",
+          "hint": "Teste também 29, 69 e 70. Comece pelo limite mais alto.",
+          "solution": "bateria = int(input())\nif bateria >= 70:\n    print(\"Alta\")\nelif bateria >= 30:\n    print(\"Média\")\nelse:\n    print(\"Baixa\")",
+          "explanation": "O segundo teste só é alcançado quando o valor é menor que 70. Nesse ponto, testar >= 30 já delimita toda a faixa intermediária."
+        },
+        "quiz": [
+          {
+            "prompt": "No exemplo da meta, o que aparece quando minutos vale 60?",
+            "options": [
+              "Bom começo",
+              "Em andamento",
+              "Meta atingida"
+            ],
+            "answer": 2,
+            "explanation": "O primeiro teste inclui o limite 60 e encerra a escolha."
+          },
+          {
+            "prompt": "Quando o bloco else é executado em uma cadeia?",
+            "options": [
+              "Quando todos os testes anteriores são falsos.",
+              "Sempre depois do primeiro bloco verdadeiro.",
+              "Quando faltam os dois-pontos do if."
+            ],
+            "answer": 0,
+            "explanation": "O else cobre todos os valores que não satisfizeram os testes anteriores."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Estruturas de repetição",
+    "description": "Automatize contagens e repita tarefas enquanto uma condição permanecer válida.",
+    "slug": "repeticao",
+    "icon": "repeat",
+    "level": "Básico",
+    "lessons": [
+      {
+        "title": "Conte com for e range",
+        "description": "Repita uma ação uma quantidade conhecida de vezes.",
+        "objective": "Determinar início e limite de uma sequência criada com range().",
+        "theory": "Ao imprimir etiquetas numeradas, repetir manualmente uma chamada para cada etiqueta aumenta o trabalho e a chance de pular um número. Um laço for percorre os valores de uma sequência e executa o mesmo bloco para cada um.\n\nrange(1, 4) fornece os inteiros 1, 2 e 3. O primeiro argumento indica o início e o segundo determina o limite excluído. Com apenas um argumento, como range(3), a contagem começa no zero. Antes de executar, escreva os valores que o laço deverá percorrer.",
+        "code": "for mesa in range(1, 4):\n    print(f\"Mesa {mesa}\")",
+        "explanation": "A variável mesa recebe 1, depois 2 e depois 3. Cada valor gera uma etiqueta em uma nova linha. O limite 4 fica fora da sequência.",
+        "note": "Se início e limite forem iguais, range(início, limite) não produz valores e o bloco não será executado.",
+        "minutes": 12,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#the-range-function",
+        "exercise": {
+          "title": "Numere as sessões",
+          "prompt": "Leia um inteiro não negativo n. Mostre os números de 1 até n, cada um em sua linha. Quando n for 0, o programa deve encerrar sem mostrar números.",
+          "objective": "Gerar uma faixa que inclua o último número pedido.",
+          "level": "Básico",
+          "input": "3",
+          "output": "1\n2\n3",
+          "hint": "Para incluir n, use n + 1 como limite de range().",
+          "solution": "n = int(input())\nfor sessao in range(1, n + 1):\n    print(sessao)",
+          "explanation": "O último argumento precisa ser um acima do valor desejado. Para n igual a zero, range(1, 1) é vazio."
+        },
+        "quiz": [
+          {
+            "prompt": "Quais valores range(2, 5) percorre?",
+            "options": [
+              "2, 3, 4, 5",
+              "2, 3, 4",
+              "3, 4, 5"
+            ],
+            "answer": 1,
+            "explanation": "A sequência começa em 2 e termina antes de 5."
+          },
+          {
+            "prompt": "Quantas chamadas a print() são executadas no exemplo de mesas?",
+            "options": [
+              "4",
+              "2",
+              "3"
+            ],
+            "answer": 2,
+            "explanation": "O laço contém três valores. O bloco executa uma chamada para cada valor."
+          }
+        ]
+      },
+      {
+        "title": "Repita até um sinal",
+        "description": "Use while e um valor de parada para receber uma quantidade variável de dados.",
+        "objective": "Controlar a condição de saída e acumular valores sem somar o marcador.",
+        "theory": "Nem sempre você conhece antecipadamente quantos dados serão informados. Para registrar tempos de estudo, a pessoa pode digitar os minutos de cada sessão e encerrar com zero. Esse valor especial é chamado de sentinela.\n\nUm while testa sua condição antes de cada repetição. Leia o primeiro valor antes do laço, acumule somente os dados válidos e leia o próximo valor no final do bloco. A última leitura permite que a condição mude. Se a primeira entrada já for zero, o corpo do laço nunca roda.",
+        "code": "total = 0\nminutos = int(input())\nwhile minutos != 0:\n    total = total + minutos\n    minutos = int(input())\nprint(total)",
+        "explanation": "Com as entradas 15, 20 e 0, o acumulador passa de 0 para 15 e depois para 35. O zero termina o laço e a última linha mostra 35.",
+        "note": "Neste exemplo, informe apenas inteiros não negativos. Sem uma nova leitura dentro do bloco, o valor testado poderia permanecer igual para sempre.",
+        "minutes": 14,
+        "material": "https://docs.python.org/pt-br/3/tutorial/introduction.html#first-steps-towards-programming",
+        "exercise": {
+          "title": "Conte as sessões registradas",
+          "prompt": "Leia durações inteiras positivas, uma por linha, até receber zero. Exiba quantas sessões foram registradas. Uma entrada inicial zero deve resultar em 0.",
+          "objective": "Contar registros em um laço com sentinela.",
+          "level": "Intermediário",
+          "input": "20\n35\n10\n0",
+          "output": "3",
+          "hint": "Aumente o contador em 1 por duração válida. A duração em minutos não é o valor a somar.",
+          "solution": "quantidade = 0\nduracao = int(input())\nwhile duracao != 0:\n    quantidade = quantidade + 1\n    duracao = int(input())\nprint(quantidade)",
+          "explanation": "O contador aumenta uma vez para cada duração positiva. Ao ler zero, o teste falha antes de contar o marcador."
+        },
+        "quiz": [
+          {
+            "prompt": "No exemplo da aula, o que acontece se a primeira entrada for 0?",
+            "options": [
+              "O programa pede mais um valor antes de sair.",
+              "O laço é ignorado e o total exibido é 0.",
+              "O laço executa exatamente uma vez."
+            ],
+            "answer": 1,
+            "explanation": "A condição while é testada antes da primeira execução do bloco."
+          },
+          {
+            "prompt": "Qual variável guarda o resultado parcial na soma dos minutos?",
+            "options": [
+              "minutos",
+              "input",
+              "total"
+            ],
+            "answer": 2,
+            "explanation": "total é o acumulador. minutos armazena apenas a leitura atual."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Listas e coleções",
+    "description": "Armazene vários valores e percorra coleções para obter informações do conjunto.",
+    "slug": "listas-e-colecoes",
+    "icon": "list",
+    "level": "Básico",
+    "lessons": [
+      {
+        "title": "Organize itens em uma lista",
+        "description": "Guarde vários nomes em uma estrutura ordenada e altere seu conteúdo.",
+        "objective": "Criar uma lista, acessar posições válidas e adicionar itens com append().",
+        "theory": "Uma lista agrupa valores em ordem. Você pode pensar nela como uma fila de materiais separados para uma aula. Em Python, os índices começam em zero. Assim, materiais[0] dá acesso ao primeiro item e materiais[1] ao segundo.\n\nO método append() adiciona um elemento ao final da própria lista. len() informa a quantidade de itens. Se uma lista tiver três elementos, seus índices não negativos válidos são 0, 1 e 2. Consultar uma posição fora dessa faixa gera um erro.",
+        "code": "materiais = [\"caderno\", \"lápis\"]\nmateriais.append(\"régua\")\nprint(materiais[0])\nprint(len(materiais))",
+        "explanation": "O primeiro item continua sendo caderno. A régua entra no final e o tamanho passa a 3. A lista mantém a ordem de inserção.",
+        "note": "Evite escrever materiais = materiais.append(...). O método modifica a lista e retorna None.",
+        "minutes": 11,
+        "material": "https://docs.python.org/pt-br/3/tutorial/datastructures.html#more-on-lists",
+        "exercise": {
+          "title": "Complete a mochila",
+          "prompt": "Crie uma lista com “livro” e “lápis”. Adicione “borracha” ao final. Mostre o último item e a quantidade total, cada informação em uma linha.",
+          "objective": "Adicionar um elemento e observar o tamanho de uma lista.",
+          "level": "Básico",
+          "input": "livro, lápis e borracha, definidos no código",
+          "output": "borracha\n3",
+          "hint": "Depois de append(), o novo item está na posição 2. O índice -1 também acessa o último item de uma lista não vazia.",
+          "solution": "mochila = [\"livro\", \"lápis\"]\nmochila.append(\"borracha\")\nprint(mochila[-1])\nprint(len(mochila))",
+          "explanation": "A borracha passa a ocupar a última posição. O primeiro print() mostra esse item e o segundo conta os três materiais."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual é o primeiro índice não negativo de uma lista em Python?",
+            "options": [
+              "0",
+              "1",
+              "-2"
+            ],
+            "answer": 0,
+            "explanation": "A numeração das posições começa em zero."
+          },
+          {
+            "prompt": "O que materiais.append(\"régua\") faz?",
+            "options": [
+              "Remove a primeira posição.",
+              "Cria uma segunda lista vazia.",
+              "Coloca régua no final da lista existente."
+            ],
+            "answer": 2,
+            "explanation": "append() modifica a lista existente e preserva os itens anteriores."
+          }
+        ]
+      },
+      {
+        "title": "Percorra e selecione valores",
+        "description": "Combine for, if e uma lista para procurar dados que atendem a um critério.",
+        "objective": "Construir uma nova coleção com os resultados de uma seleção.",
+        "theory": "Percorrer diretamente os itens de uma lista evita calcular índices quando o que interessa é o valor. A cada volta do for, a variável do laço representa um item diferente. Um if dentro do laço decide se esse item atende à regra.\n\nVocê pode começar com uma nova lista vazia e usar append() apenas para os itens selecionados. Esse padrão permite responder perguntas sobre um conjunto sem alterar a coleção original. Uma lista vazia também é uma entrada válida para o laço.",
+        "code": "tempos = [10, 35, 20, 45]\nlongas = []\nfor tempo in tempos:\n    if tempo >= 30:\n        longas.append(tempo)\nprint(longas)",
+        "explanation": "As sessões de 35 e 45 minutos satisfazem a regra e entram na nova lista. A saída é [35, 45]. Os quatro tempos continuam na lista original.",
+        "note": "Para contar os resultados, aplique len() à lista que recebeu os itens selecionados.",
+        "minutes": 13,
+        "material": "https://docs.python.org/pt-br/3/tutorial/datastructures.html",
+        "exercise": {
+          "title": "Conte os resultados suficientes",
+          "prompt": "Percorra a lista de notas [5, 8, 7, 4, 9]. Guarde em uma segunda lista as notas iguais ou superiores a 7 e exiba quantas foram aprovadas.",
+          "objective": "Selecionar valores de uma lista e contar os resultados.",
+          "level": "Intermediário",
+          "input": "[5, 8, 7, 4, 9], definida no código",
+          "output": "3",
+          "hint": "Comece com aprovadas = [] e inclua a nota 7 na condição.",
+          "solution": "notas = [5, 8, 7, 4, 9]\naprovadas = []\nfor nota in notas:\n    if nota >= 7:\n        aprovadas.append(nota)\nprint(len(aprovadas))",
+          "explanation": "A segunda lista fica com [8, 7, 9]. Seu tamanho é 3. Com uma lista de notas vazia, a contagem seria 0."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual é o valor de longas ao fim do exemplo?",
+            "options": [
+              "[10, 20]",
+              "[35, 45]",
+              "[10, 35, 20, 45]"
+            ],
+            "answer": 1,
+            "explanation": "Só entram os tempos maiores ou iguais a 30."
+          },
+          {
+            "prompt": "O que ocorre ao percorrer uma lista vazia com for?",
+            "options": [
+              "O bloco não é executado.",
+              "O bloco executa com o valor 0.",
+              "A lista recebe um item None."
+            ],
+            "answer": 0,
+            "explanation": "O for executa uma vez por elemento, portanto zero vezes em uma lista vazia."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Funções",
+    "description": "Reúna etapas em blocos reutilizáveis com parâmetros, retornos e testes simples.",
+    "slug": "funcoes",
+    "icon": "function",
+    "level": "Intermediário",
+    "lessons": [
+      {
+        "title": "Escreva uma função",
+        "description": "Crie uma regra que pode ser chamada com valores diferentes.",
+        "objective": "Definir uma função com parâmetros e reaproveitar o valor devolvido.",
+        "theory": "Quando uma tarefa se repete, você pode dar um nome a ela com def. Os parâmetros indicam os dados que a função recebe. Ao chamar a função, os argumentos ocupam esses parâmetros e o bloco executa com os valores daquela chamada.\n\nUse return para entregar o resultado ao código que chamou a função. Já print() apenas mostra algo na tela. Se a função retorna uma quantidade, o programa pode exibi-la, guardá-la em outra variável ou usá-la em um cálculo posterior.",
+        "code": "def minutos_totais(sessoes, duracao):\n    return sessoes * duracao\n\ntotal = minutos_totais(3, 20)\nprint(total)",
+        "explanation": "A chamada passa 3 e 20 para os parâmetros. A função multiplica os valores e devolve 60. A variável total recebe esse resultado fora da função.",
+        "note": "Definir a função prepara a regra. O corpo será executado quando houver uma chamada.",
+        "minutes": 12,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#defining-functions",
+        "exercise": {
+          "title": "Reutilize uma conversão",
+          "prompt": "Defina a função em_minutos(horas), que retorna a quantidade de minutos correspondente. Leia um número inteiro não negativo de horas, chame a função e mostre o resultado.",
+          "objective": "Retornar um valor e consumi-lo fora da função.",
+          "level": "Básico",
+          "input": "3",
+          "output": "180",
+          "hint": "Uma hora tem 60 minutos. Deixe o print() no código que chama a função.",
+          "solution": "def em_minutos(horas):\n    return horas * 60\n\nhoras = int(input())\nprint(em_minutos(horas))",
+          "explanation": "A função recebe o valor numérico de horas e devolve sua multiplicação por 60. Para a entrada 3, o chamador imprime 180."
+        },
+        "quiz": [
+          {
+            "prompt": "Qual comando devolve um valor ao chamador?",
+            "options": [
+              "print",
+              "return",
+              "input"
+            ],
+            "answer": 1,
+            "explanation": "return termina a chamada e entrega o valor calculado."
+          },
+          {
+            "prompt": "Em minutos_totais(3, 20), qual valor o parâmetro duracao recebe?",
+            "options": [
+              "60",
+              "3",
+              "20"
+            ],
+            "answer": 2,
+            "explanation": "Os argumentos posicionais seguem a ordem da definição. duracao é o segundo parâmetro."
+          }
+        ]
+      },
+      {
+        "title": "Teste contratos simples",
+        "description": "Descreva o que uma função aceita e confira exemplos típicos e limites.",
+        "objective": "Usar casos de teste para verificar o comportamento esperado de uma função.",
+        "theory": "Uma pequena descrição ajuda a definir o contrato de uma função. Especifique as entradas aceitas e o significado da saída. Para verificar se uma meta de 30 minutos foi atingida, por exemplo, a entrada pode ser um inteiro não negativo e a saída um valor lógico.\n\nEscolha um caso abaixo da meta, outro no limite e outro acima. A instrução assert compara o comportamento observado com o esperado. Se a expressão for falsa, a execução dos testes é interrompida com AssertionError. Um teste que passa não imprime uma mensagem por conta própria.",
+        "code": "def atingiu_meta(minutos):\n    return minutos >= 30\n\nassert not atingiu_meta(29)\nassert atingiu_meta(30)\nassert atingiu_meta(40)\nprint(\"Testes concluídos\")",
+        "explanation": "As verificações confirmam o resultado logo abaixo do limite, no limite e acima dele. Se todas passam, a última linha exibe Testes concluídos.",
+        "note": "Use assert para conferir o comportamento nos testes. Valide entradas de usuários com condições explícitas no programa.",
+        "minutes": 13,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#defining-functions",
+        "exercise": {
+          "title": "Teste a pontuação",
+          "prompt": "Crie no_intervalo(nota), que retorna True para números de 0 até 10, inclusive. Verifique com assert os casos -1, 0, 10 e 11. Depois dos testes, mostre a mensagem indicada.",
+          "objective": "Especificar limites inclusivos e verificar os dois lados de cada fronteira.",
+          "level": "Intermediário",
+          "input": "-1, 0, 10 e 11, definidos no código",
+          "output": "Testes aprovados",
+          "hint": "Você pode combinar nota >= 0 e nota <= 10 com and, ou usar 0 <= nota <= 10.",
+          "solution": "def no_intervalo(nota):\n    return 0 <= nota <= 10\n\nassert not no_intervalo(-1)\nassert no_intervalo(0)\nassert no_intervalo(10)\nassert not no_intervalo(11)\nprint(\"Testes aprovados\")",
+          "explanation": "Os extremos 0 e 10 são válidos. Os testes externos confirmam que números logo abaixo e logo acima da faixa são rejeitados."
+        },
+        "quiz": [
+          {
+            "prompt": "Por que testar uma entrada exatamente igual a 30 na função da aula?",
+            "options": [
+              "Para conferir se o limite foi incluído corretamente.",
+              "Porque valores menores sempre causam erro em Python.",
+              "Porque assert só aceita o número 30."
+            ],
+            "answer": 0,
+            "explanation": "Esse caso distingue uma comparação inclusiva >= de uma comparação estrita >."
+          },
+          {
+            "prompt": "O que acontece quando uma expressão testada por assert é falsa?",
+            "options": [
+              "A função sempre retorna False.",
+              "Python tenta trocar o valor da variável.",
+              "Surge uma exceção AssertionError."
+            ],
+            "answer": 2,
+            "explanation": "A exceção sinaliza que o comportamento observado divergiu do esperado no teste."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Projeto final introdutório",
+    "description": "Crie um diário de estudos que registra sessões, calcula resultados e apresenta um resumo.",
+    "slug": "projeto-final",
+    "icon": "rocket",
+    "level": "Intermediário",
+    "lessons": [
+      {
+        "title": "Construa um diário de estudo",
+        "description": "Integre entrada, repetição, decisões e listas em um pequeno programa.",
+        "objective": "Coletar durações, lidar com entradas fora da faixa prevista e resumir o registro.",
+        "theory": "Vamos construir um diário de estudo. Cada registro contém a duração de uma sessão em minutos. A pessoa digita um inteiro por vez. Zero encerra a coleta. Um valor negativo é ignorado e o programa continua. Escolha essas regras antes de programar para deixar claro como o diário deve se comportar.\n\nImplemente primeiro a coleta em uma lista. Depois, calcule o número de sessões com len() e o total com sum(). Esses dois resultados continuam válidos quando a lista está vazia. Teste uma sequência comum, uma entrada inicial zero e uma sequência que inclua um número negativo.",
+        "code": "sessoes = []\nminutos = int(input())\nwhile minutos != 0:\n    if minutos > 0:\n        sessoes.append(minutos)\n    minutos = int(input())\nprint(f\"Sessões: {len(sessoes)}\")\nprint(f\"Total: {sum(sessoes)} min\")",
+        "explanation": "Com as entradas 20, -5, 30 e 0, apenas 20 e 30 são registrados. O diário mostra duas sessões e 50 minutos. Um zero inicial produz zero sessões e zero minutos.",
+        "note": "Nesta etapa, o contrato de entrada aceita inteiros. Ao testar no Colab, digite uma duração por vez e finalize com zero.",
+        "minutes": 16,
+        "material": "https://docs.python.org/pt-br/3/tutorial/datastructures.html#more-on-lists",
+        "exercise": {
+          "title": "Acrescente uma meta diária",
+          "prompt": "Leia durações inteiras até zero. Ignore valores negativos. Mostre a quantidade de sessões válidas, o total e uma mensagem que informe se a meta de 60 minutos foi atingida.",
+          "objective": "Combinar o registro de sessões com uma regra de decisão ao final.",
+          "level": "Intermediário",
+          "input": "25\n-3\n35\n0",
+          "output": "Sessões: 2\nTotal: 60 min\nMeta atingida",
+          "hint": "Guarde somente valores positivos. Compare o total com 60 usando >=. Para totais menores, mostre “Meta em andamento”.",
+          "solution": "sessoes = []\nminutos = int(input())\nwhile minutos != 0:\n    if minutos > 0:\n        sessoes.append(minutos)\n    minutos = int(input())\n\ntotal = sum(sessoes)\nprint(f\"Sessões: {len(sessoes)}\")\nprint(f\"Total: {total} min\")\nif total >= 60:\n    print(\"Meta atingida\")\nelse:\n    print(\"Meta em andamento\")",
+          "explanation": "O valor -3 não entra na lista. A soma 25 + 35 chega exatamente a 60, portanto a mensagem confirma que a meta foi atingida."
+        },
+        "quiz": [
+          {
+            "prompt": "No diário, para que serve a entrada zero?",
+            "options": [
+              "Para contar uma sessão sem duração.",
+              "Para encerrar a entrada de dados.",
+              "Para apagar os registros anteriores."
+            ],
+            "answer": 1,
+            "explanation": "Zero é a sentinela. Ele encerra o laço e não entra na lista."
+          },
+          {
+            "prompt": "Qual será o total com as entradas -10, 15 e 0?",
+            "options": [
+              "5 minutos.",
+              "0 minutos.",
+              "15 minutos."
+            ],
+            "answer": 2,
+            "explanation": "O número negativo é ignorado. Só a sessão de 15 minutos é somada."
+          }
+        ]
+      },
+      {
+        "title": "Finalize e valide o relatório",
+        "description": "Organize os cálculos finais em uma função e verifique o caso sem registros.",
+        "objective": "Produzir um resumo com contagem, total e média que funcione inclusive para uma lista vazia.",
+        "theory": "Uma versão completa do diário também pode mostrar a duração média das sessões. Divida o total de minutos pela quantidade de sessões. Antes, verifique se essa quantidade é maior que zero. Para uma lista vazia, vamos definir uma média exibida de 0.0 minuto.\n\nSepare o cálculo da apresentação. Uma função pode receber a lista de durações e devolver o resultado numérico. O programa principal decide como formatar a mensagem. Para validar, rode pelo menos três cenários: nenhuma sessão, uma sessão e várias sessões. Registre as entradas e compare o relatório com o cálculo feito à mão.",
+        "code": "def media_minutos(sessoes):\n    if len(sessoes) == 0:\n        return 0.0\n    return sum(sessoes) / len(sessoes)\n\nassert media_minutos([]) == 0.0\nassert media_minutos([20, 30]) == 25.0\nprint(f\"Média: {media_minutos([20, 30]):.1f} min\")",
+        "explanation": "Com a lista vazia, a função termina antes da divisão. Com dois valores, soma 50 e divide por 2. A saída formatada mostra Média: 25.0 min.",
+        "note": "Para compartilhar o projeto, use dados de exemplo. O relatório funciona apenas com durações, sem nomes ou outras informações pessoais.",
+        "minutes": 18,
+        "material": "https://docs.python.org/pt-br/3/tutorial/controlflow.html#defining-functions",
+        "exercise": {
+          "title": "Entregue seu diário completo",
+          "prompt": "Leia durações inteiras até zero, ignorando valores negativos. Escreva uma função de média que trate a lista vazia. Exiba a quantidade, o total e a média com uma casa decimal. Teste também com zero como primeira entrada.",
+          "objective": "Entregar um programa com coleta, resumo e tratamento explícito do caso vazio.",
+          "level": "Intermediário",
+          "input": "20\n30\n0",
+          "output": "Sessões: 2\nTotal: 50 min\nMédia: 25.0 min",
+          "hint": "Use a mesma lista para len(), sum() e a função que calcula a média.",
+          "solution": "def media_minutos(sessoes):\n    if not sessoes:\n        return 0.0\n    return sum(sessoes) / len(sessoes)\n\nsessoes = []\nminutos = int(input())\nwhile minutos != 0:\n    if minutos > 0:\n        sessoes.append(minutos)\n    minutos = int(input())\n\nprint(f\"Sessões: {len(sessoes)}\")\nprint(f\"Total: {sum(sessoes)} min\")\nprint(f\"Média: {media_minutos(sessoes):.1f} min\")",
+          "explanation": "Com duas sessões, 50 / 2 produz 25.0. Quando a primeira entrada é zero, a lista fica vazia e o relatório exibe 0 sessões, 0 minuto total e média 0.0."
+        },
+        "quiz": [
+          {
+            "prompt": "Por que tratar a lista vazia antes de calcular a média?",
+            "options": [
+              "Para evitar dividir por zero.",
+              "Para tornar todas as sessões iguais a 0.",
+              "Para converter os minutos em segundos."
+            ],
+            "answer": 0,
+            "explanation": "A quantidade de sessões seria zero, tornando a divisão indefinida."
+          },
+          {
+            "prompt": "Qual cenário verifica diretamente o caminho da lista vazia?",
+            "options": [
+              "Informar 15, 20 e 0.",
+              "Informar 0 como primeira entrada.",
+              "Informar 1, 1 e 0."
+            ],
+            "answer": 1,
+            "explanation": "Uma sentinela inicial encerra a coleta antes de qualquer registro. Isso exercita o caso vazio."
+          }
+        ]
+      }
+    ]
+  }
+]
