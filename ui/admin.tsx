@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { api, Empty, Field, Icon, Loading, ModeIcon, Notice, PageTitle, useRemote } from "./common";
 import { categories, dateBR, percentage, type Module, type Row } from "../lib/model";
 import { Progress } from "./study";
+import { Gradebook } from "./gradebook";
+import { formatGrade } from "../lib/grades";
 const metricLabels: Record<string, string> = {
   users: "Participantes cadastrados",
   active: "Ativos nos últimos 30 dias",
@@ -44,6 +46,11 @@ function Chart({ title, items, max }: { title: string; items: Row[]; max?: numbe
 }
 function downloadReports(r: Row) {
   const cells: unknown[][] = [["Indicador", "Categoria", "Valor"]];
+  cells.push(
+    ["Notas", "Média geral da turma (0 a 10)", r.gradeSummary.classGrade === null ? "" : formatGrade(r.gradeSummary.classGrade)],
+    ["Notas", "Participantes com nota", r.gradeSummary.evaluated],
+    ["Notas", "Quizzes publicados", r.gradeSummary.quizCount]
+  );
   Object.entries(r.metrics).forEach(([k, v]) => cells.push(["Resumo", metricLabels[k], v]));
   for (const [k, label] of [
     ["periods", "Cadastros por mês"],
@@ -93,7 +100,7 @@ export function Reports({ home = false }: { home?: boolean }) {
         desc={
           home
             ? "Acompanhe a participação e a atividade na plataforma."
-            : "Indicadores agregados de utilização e desempenho da atividade extensionista."
+            : "Consulte as notas dos participantes e os indicadores da atividade extensionista."
         }
       />
       {!home && (
@@ -102,6 +109,7 @@ export function Reports({ home = false }: { home?: boolean }) {
           Exportar CSV agregado
         </button>
       )}
+      {!home && <Gradebook summary={v.gradeSummary} />}
       <div className="admin-metrics">
         {Object.entries(v.metrics)
           .slice(0, home ? 8 : undefined)

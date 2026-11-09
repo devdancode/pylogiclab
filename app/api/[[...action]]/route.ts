@@ -15,6 +15,7 @@ import {
 } from "../../../server/study";
 import {
   adminReports,
+  adminGrades,
   adminLesson,
   writeModule,
   writeLesson,
@@ -69,6 +70,7 @@ async function handle(req: Request, ctx: Ctx) {
     if (part === "admin") {
       if (!post) {
         if (id === "reports") return json(await adminReports());
+        if (id === "grades") return json(await adminGrades(sub));
         if (id === "users") {
           if (sub) {
             const person = requireValue(

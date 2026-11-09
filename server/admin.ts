@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { catalog, config, db, first, now, Problem, requireValue, rows, run, stmt } from "./db";
 import { questions } from "./study";
+import type { GradeSummary, ParticipantGrade } from "../lib/grades";
+import { gradeSummaryQuery, participantGradesQuery, participantQuizzesQuery, groupQuizGrades, type QuizAttemptRow } from "./grading";
 import { categories, dimensions, percentage, type Row } from "../lib/model";
 const bounded = (size = 300) => z.string().trim().max(size);
 const title = bounded(160).min(1);
@@ -183,8 +185,14 @@ export async function saveEducation(b: Row) {
   ]);
   return { message: "Escolaridades atualizadas." };
 }
+export async function adminGrades(participantId?: string) {
+  if (!participantId) return rows<ParticipantGrade>(participantGradesQuery);
+  requireValue(await first("SELECT user_id FROM profiles WHERE user_id = ?", participantId), "Participante não encontrado.");
+  return groupQuizGrades(await rows<QuizAttemptRow>(participantQuizzesQuery, participantId));
+}
+
 export async function adminReports() {
-  const [mods, users, progress, practice, attempts, feedback] = await Promise.all([
+  const [mods, users, progress, practice, attempts, feedback, gradeSummary] = await Promise.all([
     catalog(),
     rows(
       "SELECT u.id,u.created,u.last_seen,p.city,p.state,p.birth,p.experience FROM users u JOIN profiles p ON p.user_id=u.id",
@@ -195,6 +203,7 @@ export async function adminReports() {
     rows(
       "SELECT f.scope,f.ratings,l.title FROM feedback f LEFT JOIN lessons l ON l.id=f.lesson_id",
     ),
+    stmt(gradeSummaryQuery).first<GradeSummary>(),
   ]);
   const grouped = (keys: string[]) =>
     Array.from(keys.reduce((m, x) => m.set(x, (m.get(x) || 0) + 1), new Map<string, number>()))
@@ -253,6 +262,7 @@ export async function adminReports() {
     byLesson.set(label, [...(byLesson.get(label) || []), ...(JSON.parse(f.ratings) as number[])]);
   });
   return {
+    gradeSummary: requireValue(gradeSummary),
     metrics: {
       users: users.length,
       active: users.filter((x) => x.last_seen >= new Date(Date.now() - 30 * 864e5).toISOString())

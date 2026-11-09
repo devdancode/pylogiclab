@@ -57,11 +57,13 @@ Sem as duas variáveis de Supabase, o acesso e a recuperação são gerenciados 
 | `server/db.ts`, `content/curriculum.json` | Carga inicial transacional e conteúdo pedagógico original. |
 | `public/media/` | Ilustração e fontes hospedadas com o site. |
 
-As alterações de conteúdo feitas no painel são persistidas no banco. A carga inicial ocorre uma única vez por banco. Novas migrações devem ser geradas com `pnpm run db:generate`. Preserve as migrações já aplicadas. Para revisar o código, execute `pnpm exec tsc --noEmit`.
+As alterações de conteúdo feitas no painel são persistidas no banco. A carga inicial ocorre uma única vez por banco. Novas migrações devem ser geradas com `pnpm run db:generate`. Preserve as migrações já aplicadas. Para revisar o código, execute `pnpm exec tsc --noEmit`. Os testes de notas podem ser executados com `node --experimental-strip-types --test tests/grades.test.mjs`.
 
 A pasta `cadernos/` contém os vinte notebooks iniciais, gerados com `node scripts/gerar-cadernos.mjs`. Cada exercício também gera um arquivo Jupyter atualizado pelo servidor. O aluno baixa o arquivo, abre o Google Colab e seleciona **Arquivo → Fazer upload de notebook**. Também é possível cadastrar um link direto para um caderno do Colab no editor de aulas. A abertura de um exercício e sua conclusão são registradas separadamente. A conclusão prática é autodeclarada pelo participante. As respostas dos quizzes são corrigidas no servidor com um registro das perguntas e alternativas da tentativa.
 
-O painel administrativo exporta um CSV em UTF-8 com indicadores agregados para o relatório acadêmico. Comentários abertos e dados de identificação permanecem na área administrativa. O tempo de estudo é aproximado e contabiliza intervalos com a aula ativa. Inatividade por módulo considera 14 dias sem acesso após o início e antes da conclusão.
+Em **Administração → Relatórios → Notas dos participantes**, a coordenação pode consultar a nota por quiz, as tentativas e a nota geral de cada inscrito. Cada tentativa concluída vale de 0 a 10 e usa a quantidade de questões daquela tentativa. A nota geral é a média das melhores notas de cada quiz respondido e tem status parcial até que todos os quizzes publicados estejam concluídos. Sem tentativa concluída, a nota fica em branco. A média da turma considera uma nota geral por participante avaliado.
+
+O painel administrativo exporta um CSV em UTF-8 com indicadores agregados para o relatório acadêmico, incluindo a média da turma e o total de participantes avaliados. Comentários abertos e dados de identificação permanecem na área administrativa. O tempo de estudo é aproximado e contabiliza intervalos com a aula ativa. Inatividade por módulo considera 14 dias sem acesso após o início e antes da conclusão.
 
 ## Publicação
 
