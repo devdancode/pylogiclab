@@ -8,12 +8,12 @@ export const db = () => {
 export const config = () =>
   env as Cloudflare.Env & {
     ADMIN_EMAIL?: string;
-    EMAIL_AUTH_PRIMARY?: string;
     COLAB_GITHUB_BASE?: string;
     SUPABASE_URL?: string;
     SUPABASE_PUBLISHABLE_KEY?: string;
     SUPABASE_SERVICE_ROLE_KEY?: string;
     SITE_URL?: string;
+    VERCEL_SITE_URL?: string;
   };
 export const now = () => new Date().toISOString();
 export const stmt = (sql: string, ...args: any[]) =>
@@ -157,6 +157,13 @@ export async function catalog(all = false): Promise<Module[]> {
     ...m,
     lessons: lessons.filter((l) => l.module_id === m.id),
   })) as Module[];
+}
+export async function courseSummary() {
+  const modules = await catalog();
+  const count = await first(
+    "SELECT count(*) n FROM exercises e JOIN lessons l ON l.id=e.lesson_id JOIN modules m ON m.id=l.module_id WHERE l.published=1 AND m.published=1"
+  );
+  return { modules, exerciseCount: Number(count?.n || 0) };
 }
 export async function lesson(id: string) {
   return requireValue(

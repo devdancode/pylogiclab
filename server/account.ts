@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { getChatGPTUser } from "../app/chatgpt-auth";
 import { config, db, first, now, Problem, rows, run, seed, stmt } from "./db";
 import { experiences, states, weeklyOptions, type Row } from "../lib/model";
 
@@ -56,7 +55,6 @@ type Identity = {
   email: string;
   name: string;
   metadata?: Row;
-  mode: "sites" | "email";
 };
 async function provider(
   path: string,
@@ -79,6 +77,8 @@ async function provider(
   });
   const data = await res.json<any>().catch(() => ({}));
   if (!res.ok) {
+    if (res.status >= 500)
+      throw new Problem(503, "O serviço de acesso está temporariamente indisponível.");
     if (res.status === 429) throw new Problem(429, "Muitas tentativas. Aguarde alguns minutos.");
     if (
       data.error_code === "email_address_not_authorized" ||
@@ -86,8 +86,12 @@ async function provider(
     )
       throw new Problem(
         503,
-        "O envio de e-mail para participantes ainda não foi habilitado. Continue com o ChatGPT para se matricular."
+        "O serviço de e-mail da plataforma ainda não pode enviar a confirmação para este endereço. Procure a coordenação."
       );
+    if ((data.error_code || data.code) === "invalid_credentials")
+      throw new Problem(401, "E-mail ou senha incorretos.");
+    if ((data.error_code || data.code) === "email_not_confirmed")
+      throw new Problem(403, "Confirme seu e-mail antes de entrar.");
     throw new Problem(
       400,
       "Não foi possível validar os dados. Confira o e-mail, a confirmação da conta e a senha."
@@ -102,7 +106,6 @@ async function setTokens(tokens: Row) {
   const options = { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" };
   if (!tokens.access_token || !tokens.refresh_token)
     throw new Problem(400, "A sessão não pôde ser iniciada.");
-  jar.set("ll_native", "0", { ...options, maxAge: 30 * 86400 });
   jar.set(tokenName, tokens.access_token, { ...options, maxAge: tokens.expires_in || 3600 });
   jar.set(refreshName, tokens.refresh_token, { ...options, maxAge: 30 * 86400 });
 }
@@ -111,51 +114,52 @@ export async function clearTokens() {
   c.delete(tokenName);
   c.delete(refreshName);
 }
-export async function nativeSelected() {
-  if (!hasProvider()) return true;
-  const selected = (await cookies()).get("ll_native")?.value;
-  if (selected !== undefined) return selected === "1";
-  return config().EMAIL_AUTH_PRIMARY !== "1";
+// A verified password identity can claim its previous enrollment exactly once.
+async function enrollmentId(subject: string, email: string) {
+  const key = "sb:" + subject;
+  const existing = await first("SELECT id FROM users WHERE id=? OR supabase_id=?", key, subject);
+  if (existing) return String(existing.id);
+  const linked = await first(
+    "UPDATE users SET supabase_id=? WHERE email=? AND id LIKE 'sites:%' AND verified=1 AND supabase_id IS NULL RETURNING id",
+    subject,
+    email
+  );
+  if (linked) return String(linked.id);
+  const concurrent = await first("SELECT id FROM users WHERE supabase_id=?", subject);
+  return concurrent ? String(concurrent.id) : key;
 }
 export async function identity(renew = false): Promise<Identity | null> {
-  if (!(await nativeSelected())) {
-    const jar = await cookies();
-    let token = jar.get(tokenName)?.value;
-    if (renew && !token && jar.get(refreshName)?.value) {
-      try {
-        const t = await provider("token?grant_type=refresh_token", {
-          refresh_token: jar.get(refreshName)?.value,
-        });
-        await setTokens(t);
-        token = t.access_token;
-      } catch {
-        await clearTokens();
-      }
+  const jar = await cookies();
+  const access = jar.get(tokenName)?.value;
+  const refresh = jar.get(refreshName)?.value;
+  if (!hasProvider() || (!access && !refresh)) return null;
+  const lookup = async (token: string) => {
+    try {
+      return await provider("user", undefined, token, "GET");
+    } catch (e) {
+      if (!(e instanceof Problem) || e.status !== 400) throw e;
+      return null;
     }
-    if (token) {
-      try {
-        const u = await provider("user", undefined, token, "GET");
-        if (u.email_confirmed_at)
-          return {
-            id: "sb:" + u.id,
-            email: u.email.toLowerCase(),
-            name: u.user_metadata?.enrollment?.name || "",
-            metadata: u.user_metadata,
-            mode: "email",
-          };
-      } catch {}
+  };
+  let user = access ? await lookup(access) : null;
+  if (!user && renew && refresh) {
+    try {
+      const t = await provider("token?grant_type=refresh_token", { refresh_token: refresh });
+      await setTokens(t);
+      user = await lookup(t.access_token);
+    } catch (e) {
+      if (!(e instanceof Problem) || e.status !== 400) throw e;
+      await clearTokens();
     }
-    return null;
   }
-  const u = await getChatGPTUser();
-  return u
-    ? {
-        id: "sites:" + u.userId,
-        email: u.email.toLowerCase(),
-        name: u.fullName || "",
-        mode: "sites",
-      }
-    : null;
+  if (!user?.id || !user.email_confirmed_at || !user.email) return null;
+  const email = mail.parse(user.email);
+  return {
+    id: await enrollmentId(user.id, email),
+    email,
+    name: user.user_metadata?.enrollment?.name || "",
+    metadata: user.user_metadata,
+  };
 }
 export async function account(u: Identity) {
   return first(
@@ -212,7 +216,7 @@ export async function session() {
   await seed();
   const u = await identity(true);
   let profile = u ? await account(u) : null;
-  if (u && !profile && u.mode === "email" && u.metadata?.enrollment && u.metadata?.consent) {
+  if (u && !profile && u.metadata?.enrollment && u.metadata?.consent) {
     await enroll(u, u.metadata.enrollment, true);
     profile = await account(u);
   }
@@ -220,10 +224,9 @@ export async function session() {
     throw new Problem(403, "Sua conta está desativada. Procure a coordenação do projeto.");
   if (profile) await run("UPDATE users SET last_seen=? WHERE id=?", now(), u!.id);
   return {
-    identity: u ? { name: u.name, email: u.email, mode: u.mode } : null,
+    identity: u ? { name: u.name, email: u.email } : null,
     profile,
-    provider: !(await nativeSelected()),
-    emailAvailable: hasProvider(),
+    consented: u?.metadata?.consent === true,
     education: (await rows("SELECT name FROM education_options ORDER BY position,name")).map(
       (x) => x.name
     ),
@@ -239,31 +242,39 @@ export async function member(admin = false) {
     throw new Problem(403, "Esta área é exclusiva da administração.");
   return p;
 }
-export async function authAction(action: string, b: Row) {
+export async function authAction(action: string, b: Row, requestedOrigin: string | null = null) {
+  const c = config();
+  const origin =
+    requestedOrigin && requestedOrigin === c.VERCEL_SITE_URL ? requestedOrigin : c.SITE_URL;
   if (action === "signup") {
-    const profile = profileShape.parse(b);
+    const email = mail.parse(b.email),
+      password = passwordSchema.parse(b.password);
+    if (password !== b.confirm) throw new Problem(422, "As senhas não coincidem.");
     if (b.consent !== true) throw new Problem(422, "Aceite os termos e a política de privacidade.");
-    if (!(await nativeSelected())) {
-      const email = mail.parse(b.email),
-        password = passwordSchema.parse(b.password);
-      if (password !== b.confirm) throw new Problem(422, "As senhas não coincidem.");
-      const origin = config().SITE_URL;
-      if (!origin) throw new Problem(503, "A URL de confirmação precisa ser configurada.");
-      await provider("signup?redirect_to=" + encodeURIComponent(origin + "/login"), {
+    if (!origin) throw new Problem(503, "A URL de confirmação precisa ser configurada.");
+    const result = await provider(
+      "signup?redirect_to=" + encodeURIComponent(origin + "/confirmar"),
+      {
         email,
         password,
-        data: { enrollment: profile, consent: true },
-      });
-      return {
-        message:
-          "Confira sua caixa de entrada para confirmar a conta. Se já confirmou, entre com sua senha.",
-        pending: true,
-      };
+        data: { consent: true },
+      }
+    );
+    if (result.access_token && result.refresh_token) {
+      await setTokens(result);
+      return { next: "/dashboard" };
     }
-    const u = await identity();
-    if (!u) throw new Problem(401, "Identifique-se com sua conta ChatGPT para fazer a matrícula.");
-    await enroll(u, profile, true);
-    return { next: "/boas-vindas" };
+    return {
+      message:
+        "Confira sua caixa de entrada e a pasta de spam para confirmar o cadastro. Se já tem uma conta, entre com sua senha.",
+      pending: true,
+    };
+  }
+  if (action === "enroll") {
+    const u = await identity(true);
+    if (!u) throw new Problem(401, "Confirme seu e-mail e entre para concluir a matrícula.");
+    if (!(await account(u))) await enroll(u, b, b.consent === true || u.metadata?.consent === true);
+    return { next: "/dashboard" };
   }
   if (action === "login") {
     const t = await provider("token?grant_type=password", {
@@ -274,9 +285,8 @@ export async function authAction(action: string, b: Row) {
     return { next: "/dashboard" };
   }
   if (action === "recover") {
-    if (!hasProvider())
-      throw new Problem(400, "A recuperação é feita pelo acesso seguro do ChatGPT.");
-    await provider("recover?redirect_to=" + encodeURIComponent(config().SITE_URL + "/nova-senha"), {
+    if (!origin) throw new Problem(503, "A URL de recuperação precisa ser configurada.");
+    await provider("recover?redirect_to=" + encodeURIComponent(origin + "/nova-senha"), {
       email: mail.parse(b.email),
     });
     return {
@@ -291,7 +301,7 @@ export async function authAction(action: string, b: Row) {
       token_hash: z.string().min(12).max(512).parse(b.token),
     });
     await setTokens(t);
-    return { next: b.type === "recovery" ? "/nova-senha" : "/boas-vindas" };
+    return { next: b.type === "recovery" ? "/nova-senha" : "/dashboard" };
   }
   if (action === "exchange") {
     const access = z.string().min(15).max(12000).parse(b.access),
@@ -303,20 +313,18 @@ export async function authAction(action: string, b: Row) {
   }
   if (action === "password") {
     const u = await identity(true);
-    if (!u || u.mode !== "email")
-      throw new Problem(401, "Entre pelo link de recuperação ou pela sua conta de e-mail.");
+    if (!u) throw new Problem(401, "Entre pelo link de recuperação ou pela sua conta de e-mail.");
     const password = passwordSchema.parse(b.password);
     if (password !== b.confirm) throw new Problem(422, "As senhas não coincidem.");
     await provider("user", { password }, (await cookies()).get(tokenName)?.value, "PUT");
     return { message: "Senha atualizada." };
   }
   if (action === "logout") {
-    const native = await nativeSelected();
     const token = (await cookies()).get(tokenName)?.value;
     if (hasProvider() && token) await provider("logout", undefined, token).catch(() => {});
     await clearTokens();
     (await cookies()).delete("ll_native");
-    return { next: native ? "/signout-with-chatgpt?return_to=%2F" : "/" };
+    return { next: "/" };
   }
   throw new Problem(404, "Ação não encontrada.");
 }
@@ -365,35 +373,35 @@ export async function profileAction(action: string, b: Row, u: Row) {
   }
   if (action === "delete") {
     if (b.confirm !== "EXCLUIR") throw new Problem(422, "Digite EXCLUIR para confirmar.");
-    if (u.id.startsWith("sb:")) {
-      if (config().SUPABASE_SERVICE_ROLE_KEY)
-        await provider(
-          "admin/users/" + encodeURIComponent(u.id.slice(3)),
-          undefined,
-          undefined,
-          "DELETE",
-          true
+    const token = (await cookies()).get(tokenName)?.value;
+    if (!token) throw new Problem(401, "Entre novamente para excluir sua conta.");
+    if (config().SUPABASE_SERVICE_ROLE_KEY) {
+      const verified = await provider("user", undefined, token, "GET");
+      await provider(
+        "admin/users/" + encodeURIComponent(verified.id),
+        undefined,
+        undefined,
+        "DELETE",
+        true
+      );
+    } else {
+      const res = await fetch(
+        config().SUPABASE_URL!.replace(/\/$/, "") + "/rest/v1/rpc/excluir_minha_conta_logicalab",
+        {
+          method: "POST",
+          headers: {
+            apikey: config().SUPABASE_PUBLISHABLE_KEY!,
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+          body: "{}",
+        }
+      );
+      if (!res.ok)
+        throw new Problem(
+          503,
+          "A exclusão da identidade pelo provedor não pôde ser concluída. Solicite a exclusão à coordenação pelo feedback."
         );
-      else {
-        const token = (await cookies()).get(tokenName)?.value;
-        const res = await fetch(
-          config().SUPABASE_URL!.replace(/\/$/, "") + "/rest/v1/rpc/excluir_minha_conta_logicalab",
-          {
-            method: "POST",
-            headers: {
-              apikey: config().SUPABASE_PUBLISHABLE_KEY!,
-              Authorization: "Bearer " + token,
-              "Content-Type": "application/json",
-            },
-            body: "{}",
-          }
-        );
-        if (!res.ok)
-          throw new Problem(
-            503,
-            "A exclusão da identidade pelo provedor não pôde ser concluída. Solicite a exclusão à coordenação pelo feedback."
-          );
-      }
     }
     await run("DELETE FROM users WHERE id=?", u.id);
     await clearTokens();

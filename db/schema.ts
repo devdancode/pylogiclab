@@ -12,6 +12,7 @@ const required = (name: string) => text(name).notNull();
 export const users = sqliteTable("users", {
   id: id(),
   email: required("email").unique(),
+  supabaseId: text("supabase_id").unique(),
   role: required("role").default("aluno"),
   active: integer("active").notNull().default(1),
   verified: integer("verified").notNull().default(1),

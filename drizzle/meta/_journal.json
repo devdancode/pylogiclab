@@ -8,6 +8,13 @@
       "when": 1794230331827,
       "tag": "0000_needy_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794348644265,
+      "tag": "0001_link_verified_email_enrollments",
+      "breakpoints": true
     }
   ]
 }

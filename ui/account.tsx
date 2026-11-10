@@ -22,14 +22,10 @@ export function ProfileFields({
   data,
   set,
   education,
-  registration = false,
-  provider = false,
 }: {
   data: Row;
   set: (v: Row) => void;
   education: string[];
-  registration?: boolean;
-  provider?: boolean;
 }) {
   const change = (k: string, v: any) => set({ ...data, [k]: v });
   const input = (k: string, label: string, type = "text", required = true, max = 150) => (
@@ -46,13 +42,10 @@ export function ProfileFields({
               email: "email",
               phone: "tel",
               city: "address-level2",
-              password: "new-password",
-              confirm: "new-password",
             } as Row
           )[k]
         }
-        readOnly={k === "email" && (!registration || !provider)}
-        minLength={k === "password" || k === "confirm" ? 8 : undefined}
+        readOnly={k === "email"}
         max={type === "date" ? new Date().toISOString().slice(0, 10) : undefined}
         onChange={(e) => change(k, e.target.value)}
       />
@@ -96,38 +89,36 @@ export function ProfileFields({
           />
         </Field>
       </div>
-      {registration && provider && (
-        <>
-          <h3>Senha de acesso</h3>
-          <div className="form-grid">
-            {input("password", "Senha", "password")}
-            {input("confirm", "Confirme a senha", "password")}
-          </div>
-          <small>Use pelo menos oito caracteres, uma letra e um número.</small>
-        </>
-      )}
-      {registration && (
-        <label className="consent">
-          <input
-            type="checkbox"
-            checked={!!data.consent}
-            required
-            onChange={(e) => change("consent", e.target.checked)}
-          />
-          <span>
-            Li e aceito os{" "}
-            <a href="/termos" target="_blank" rel="noreferrer">
-              Termos de uso
-            </a>{" "}
-            e a{" "}
-            <a href="/privacidade" target="_blank" rel="noreferrer">
-              Política de privacidade
-            </a>
-            .
-          </span>
-        </label>
-      )}
     </>
+  );
+}
+function Consent({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="consent">
+      <input
+        type="checkbox"
+        checked={checked}
+        required
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span>
+        Li e aceito os{" "}
+        <a href="/termos" target="_blank" rel="noreferrer">
+          Termos de uso
+        </a>{" "}
+        e a{" "}
+        <a href="/privacidade" target="_blank" rel="noreferrer">
+          Política de privacidade
+        </a>
+        .
+      </span>
+    </label>
   );
 }
 function safeNext() {
@@ -149,6 +140,13 @@ export function AccountPage({ kind }: { kind: string }) {
     if (kind !== "confirmar" && kind !== "login" && kind !== "nova-senha") return;
     const qs = new URLSearchParams(location.search),
       hash = new URLSearchParams(location.hash.slice(1));
+    if (qs.has("error") || hash.has("error")) {
+      history.replaceState(null, "", location.pathname);
+      err(
+        "Este link expirou ou já foi utilizado. Entre com sua senha ou solicite um novo link de recuperação.",
+      );
+      return;
+    }
     if (qs.has("token_hash") || hash.has("access_token")) {
       wait(true);
       const action = qs.has("token_hash") ? "verify" : "exchange",
@@ -172,232 +170,210 @@ export function AccountPage({ kind }: { kind: string }) {
     }
   }, [kind]);
   const register = kind === "cadastro",
+    enroll = kind === "matricula",
     recover = kind === "recuperar-senha",
     newpass = kind === "nova-senha",
-    confirm = kind === "confirmar";
+    confirm = kind === "confirmar",
+    login = kind === "login";
+  const data = session.value,
+    profile = data?.profile;
+  useEffect(() => {
+    if (enroll && data && !data.identity) location.replace("/login?next=%2Fmatricula");
+    if (enroll && profile?.active) location.replace("/dashboard");
+  }, [enroll, data, profile]);
   const title = register
     ? "Crie sua conta"
+    : enroll
+    ? "Conclua sua matrícula"
     : recover
     ? "Recupere seu acesso"
     : newpass
     ? "Defina uma nova senha"
     : confirm
-    ? "Confirme seu e-mail"
+    ? "Confirmação de e-mail"
     : "Boas-vindas de volta";
-  const data = session.value,
-    provider = data?.provider,
-    identity = data?.identity,
-    profile = data?.profile;
-  const redirectNative =
-    "/signin-with-chatgpt?return_to=" +
-    encodeURIComponent(register ? "/cadastro" : recover ? "/login" : "/dashboard");
+  const description = register
+    ? "Cadastre seu e-mail e escolha uma senha para estudar na LógicaLab."
+    : enroll
+    ? "Conte um pouco sobre você para começar sua trilha."
+    : recover
+    ? "Informe o e-mail da sua conta para receber o link de recuperação."
+    : newpass
+    ? "Escolha a nova senha que você usará para entrar."
+    : confirm
+    ? "Valide seu e-mail para acessar a plataforma."
+    : "Entre com o e-mail e a senha que você cadastrou na LógicaLab.";
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     err("");
     msg("");
-    if (
-      (register || newpass) &&
-      provider &&
-      (d.password !== d.confirm || !/[a-zA-ZÀ-ÿ]/.test(d.password) || !/[0-9]/.test(d.password))
-    ) {
-      err("Use uma letra, um número e confirme a mesma senha.");
-      return;
+    if (register || newpass) {
+      if (d.password !== d.confirm) {
+        err("As senhas não coincidem.");
+        return;
+      }
+      if (d.password.length < 8 || !/[a-zA-ZÀ-ÿ]/.test(d.password) || !/[0-9]/.test(d.password)) {
+        err("Use pelo menos oito caracteres, uma letra e um número.");
+        return;
+      }
     }
     wait(true);
     try {
-      const result = await api(
-        "auth/" + (register ? "signup" : recover ? "recover" : newpass ? "password" : "login"),
-        d,
-      );
-      if (result.next)
-        location.assign(!register && !recover && !newpass ? safeNext() : result.next);
+      const action = register
+        ? "signup"
+        : enroll
+        ? "enroll"
+        : recover
+        ? "recover"
+        : newpass
+        ? "password"
+        : "login";
+      const fields = register
+        ? { email: d.email, password: d.password, confirm: d.confirm, consent: d.consent }
+        : enroll
+        ? d
+        : recover
+        ? { email: d.email }
+        : newpass
+        ? { password: d.password, confirm: d.confirm }
+        : { email: d.email, password: d.password };
+      const result = await api("auth/" + action, fields);
+      if (result.next) location.assign(login ? safeNext() : result.next);
       else {
         msg(result.message);
         finish(true);
       }
-    } catch (x: any) {
-      err(x.message);
+    } catch (e: any) {
+      err(e.message);
     } finally {
       wait(false);
     }
   }
+  const setField = (key: string, value: string | boolean) =>
+    set((prev) => ({ ...prev, [key]: value }));
   return (
     <>
-      <Header current="conta" member={!!profile} />
+      <Header current="conta" member={!!profile?.active} />
       <main id="principal" className="authpage">
-        <section
-          className={
-            "authcard" + (register && data && (provider || identity) && !profile ? " wide" : "")
-          }
-        >
+        <section className={"authcard" + (enroll ? " wide" : "")}>
           <a className="back" href="/">
             <Icon name="left" size={16} />
             Início
           </a>
           <span className="auth-emblem">
-            <Icon name={register ? "cap" : recover || newpass ? "lock" : "terminal"} size={25} />
+            <Icon
+              name={register || enroll ? "cap" : recover || newpass ? "lock" : "terminal"}
+              size={25}
+            />
           </span>
-          <PageTitle
-            title={title}
-            desc={
-              register
-                ? "Faça sua matrícula gratuita para começar a trilha de programação."
-                : recover
-                ? "Retome o acesso à sua área de estudos."
-                : newpass
-                ? "Escolha uma senha com pelo menos oito caracteres."
-                : confirm
-                ? "Estamos validando seu link de confirmação."
-                : "Acesse sua trilha, seus exercícios e seu progresso."
-            }
-          />
+          <PageTitle title={title} desc={description} />
           <Notice text={error || session.error} />
           <Notice text={message} success />
-          {!data && !session.error ? (
+          {done || confirm ? (
+            <a className="btn ghost" href="/login">
+              Voltar para o login
+            </a>
+          ) : (register || login) && profile?.active ? (
+            <>
+              <p className="muted">Você está conectado como {profile.name}.</p>
+              <a className="btn primary" href={profile.onboarded ? safeNext() : "/boas-vindas"}>
+                Ir para minha área <Icon name="arrow" size={16} />
+              </a>
+            </>
+          ) : enroll && !data?.identity ? (
             <Loading />
           ) : (
-            data &&
-            (!done ? (
-              confirm ? (
-                <div>
-                  {!busy && (
-                    <a className="btn ghost" href="/login">
-                      Ir para o acesso
-                    </a>
+            <form onSubmit={submit}>
+              {enroll ? (
+                <>
+                  <ProfileFields data={d} set={set} education={data.education} />
+                  {!data.consented && (
+                    <Consent checked={d.consent} onChange={(value) => setField("consent", value)} />
                   )}
-                </div>
-              ) : !provider && (recover || newpass) ? (
-                <>
-                  <p className="muted">
-                    Sua identidade é gerenciada pelo ChatGPT. Na tela de acesso da sua conta,
-                    utilize a opção de recuperação de senha do seu provedor.
-                  </p>
-                  <a className="btn primary" target="_top" href={redirectNative}>
-                    Acessar minha conta <Icon name="out" size={16} />
-                  </a>
-                </>
-              ) : profile && (register || kind === "login") ? (
-                <>
-                  <p className="muted">Você está conectado como {profile.name}.</p>
-                  <a className="btn primary" href={profile.onboarded ? safeNext() : "/boas-vindas"}>
-                    Ir para minha área <Icon name="arrow" size={16} />
-                  </a>
-                </>
-              ) : !provider && (!register || !identity) ? (
-                <>
-                  <p className="muted">
-                    {identity
-                      ? "Sua identidade já foi confirmada. Conclua a matrícula para iniciar seus estudos."
-                      : "Use sua conta ChatGPT para confirmar sua identidade e acessar a plataforma."}
-                  </p>
-                  <a
-                    className="btn primary fullbtn"
-                    target="_top"
-                    href={identity ? "/cadastro" : redirectNative}
-                  >
-                    {identity ? "Concluir minha matrícula" : "Continuar com o ChatGPT"}
-                    <Icon name="arrow" size={17} />
-                  </a>
-                  <a className="form-link" href="/recuperar-senha">
-                    Preciso recuperar meu acesso
-                  </a>
                 </>
               ) : (
-                <form onSubmit={submit}>
-                  {register ? (
-                    <ProfileFields
-                      data={d}
-                      set={set}
-                      education={data.education}
-                      registration
-                      provider={provider}
-                    />
-                  ) : (
+                <>
+                  {!newpass && (
+                    <Field label="E-mail">
+                      <input
+                        name="email"
+                        type="email"
+                        autoComplete="username"
+                        required
+                        maxLength={254}
+                        value={d.email}
+                        onChange={(e) => setField("email", e.target.value)}
+                      />
+                    </Field>
+                  )}
+                  {!recover && (
+                    <Field label={newpass ? "Nova senha" : "Senha"}>
+                      <input
+                        name="password"
+                        type="password"
+                        autoComplete={register || newpass ? "new-password" : "current-password"}
+                        required
+                        minLength={register || newpass ? 8 : 1}
+                        maxLength={128}
+                        value={d.password}
+                        onChange={(e) => setField("password", e.target.value)}
+                      />
+                    </Field>
+                  )}
+                  {(register || newpass) && (
                     <>
-                      {!newpass && (
-                        <Field label="E-mail">
-                          <input
-                            type="email"
-                            required
-                            autoComplete="email"
-                            value={d.email}
-                            onChange={(e) => set({ ...d, email: e.target.value })}
-                          />
-                        </Field>
-                      )}
-                      {!recover && (
-                        <Field label={newpass ? "Nova senha" : "Senha"}>
-                          <input
-                            type="password"
-                            required
-                            minLength={newpass ? 8 : 1}
-                            autoComplete={newpass ? "new-password" : "current-password"}
-                            value={d.password}
-                            onChange={(e) => set({ ...d, password: e.target.value })}
-                          />
-                        </Field>
-                      )}
-                      {newpass && (
-                        <Field label="Confirme a nova senha">
-                          <input
-                            type="password"
-                            required
-                            value={d.confirm}
-                            onChange={(e) => set({ ...d, confirm: e.target.value })}
-                          />
-                        </Field>
-                      )}
-                      {!newpass && !recover && (
-                        <a className="form-link" href="/recuperar-senha">
-                          Esqueci minha senha
-                        </a>
-                      )}
+                      <Field label="Confirme a senha">
+                        <input
+                          name="confirm"
+                          type="password"
+                          autoComplete="new-password"
+                          required
+                          minLength={8}
+                          maxLength={128}
+                          value={d.confirm}
+                          onChange={(e) => setField("confirm", e.target.value)}
+                        />
+                      </Field>
+                      <small>Use pelo menos oito caracteres, uma letra e um número.</small>
                     </>
                   )}
-                  <button disabled={busy} className="btn primary fullbtn">
-                    {busy
-                      ? "Aguarde…"
-                      : register
-                      ? "Criar conta gratuita"
-                      : recover
-                      ? "Enviar link de recuperação"
-                      : newpass
-                      ? "Salvar nova senha"
-                      : "Entrar"}
-                    <Icon name="arrow" size={16} />
-                  </button>
-                </form>
-              )
-            ) : (
-              <a className="btn ghost" href="/login">
-                Voltar ao acesso
-              </a>
-            ))
+                  {register && (
+                    <Consent checked={d.consent} onChange={(value) => setField("consent", value)} />
+                  )}
+                  {login && (
+                    <a className="form-link" href="/recuperar-senha">
+                      Esqueci minha senha
+                    </a>
+                  )}
+                </>
+              )}
+              <button disabled={busy} className="btn primary fullbtn">
+                {busy
+                  ? "Aguarde…"
+                  : register
+                  ? "Criar conta gratuita"
+                  : enroll
+                  ? "Concluir matrícula"
+                  : recover
+                  ? "Enviar link de recuperação"
+                  : newpass
+                  ? "Salvar nova senha"
+                  : "Entrar"}
+                <Icon name="arrow" size={16} />
+              </button>
+            </form>
           )}
-          <div className="auth-foot">
-            {data?.emailAvailable && !profile && (register || kind === "login") && (
-              <p className="alternate-access">
-                <a
-                  target="_top"
-                  href={
-                    "/api/access/" +
-                    (provider ? "sites" : "email") +
-                    "?to=" +
-                    (register ? "cadastro" : "login")
-                  }
-                >
-                  {provider ? "Continuar com o ChatGPT" : "Usar e-mail e senha"}
-                </a>
-              </p>
-            )}
-            {register || recover || newpass ? (
-              <a href="/login">Voltar para o login</a>
-            ) : (
-              <span>
-                Primeiro acesso? <a href="/cadastro">Criar conta gratuita</a>
-              </span>
-            )}
-          </div>
+          {!done && !confirm && !enroll && (
+            <div className="auth-foot">
+              {login ? (
+                <span>
+                  Primeiro acesso? <a href="/cadastro">Criar conta gratuita</a>
+                </span>
+              ) : (
+                <a href="/login">Voltar para o login</a>
+              )}
+            </div>
+          )}
         </section>
       </main>
       <Footer />

@@ -1,0 +1,23 @@
+export const pageNames: Record<string, string> = {
+  trilha: "Trilha de aprendizagem",
+  login: "Entrar",
+  cadastro: "Criar conta",
+  matricula: "Concluir matrícula",
+  "recuperar-senha": "Recuperar acesso",
+  dashboard: "Painel do aluno",
+  curso: "Curso",
+  aula: "Aula",
+  quiz: "Quiz",
+  exercicio: "Exercício",
+  progresso: "Meu progresso",
+  perfil: "Meu perfil",
+  feedback: "Avaliar a experiência",
+  admin: "Administração",
+  termos: "Termos de uso",
+  privacidade: "Política de privacidade",
+  notificacoes: "Notificações",
+  "boas-vindas": "Primeiro acesso",
+  "nova-senha": "Nova senha",
+  confirmar: "Confirmar e-mail",
+};
+export const accountPages = ["login", "cadastro", "recuperar-senha", "nova-senha", "confirmar"];

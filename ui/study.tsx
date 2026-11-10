@@ -836,7 +836,7 @@ export function Profile({ session }: { session: Row }) {
       <section className="panel">
         <h2>Acesso e privacidade</h2>
         <div className="inline-actions">
-          <a className="btn ghost" href={session.provider ? "/nova-senha" : "/recuperar-senha"}>
+          <a className="btn ghost" href="/nova-senha">
             Gerenciar senha
           </a>
           <button className="btn danger" onClick={() => setDel(!del)}>

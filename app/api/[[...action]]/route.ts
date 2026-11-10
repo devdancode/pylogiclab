@@ -1,7 +1,16 @@
-import { cookies } from "next/headers";
 import { ZodError, z } from "zod";
 import { session, member, authAction, profileAction } from "../../../server/account";
-import { catalog, config, first, Problem, requireValue, rows, run, now } from "../../../server/db";
+import {
+  catalog,
+  courseSummary,
+  config,
+  first,
+  Problem,
+  requireValue,
+  rows,
+  run,
+  now,
+} from "../../../server/db";
 import {
   overview,
   lessonView,
@@ -48,24 +57,16 @@ async function handle(req: Request, ctx: Ctx) {
     };
     if (!post && part === "access" && ["sites", "email"].includes(id)) {
       const back = new URL(req.url).searchParams.get("to") === "cadastro" ? "/cadastro" : "/login";
-      const jar = await cookies();
-      jar.set("ll_native", id === "sites" ? "1" : "0", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 30 * 86400,
-      });
-      const next =
-        id === "sites" ? "/signin-with-chatgpt?return_to=" + encodeURIComponent(back) : back;
       return new Response(null, {
         status: 302,
-        headers: { Location: next, "Cache-Control": "no-store" },
+        headers: { Location: back, "Cache-Control": "no-store" },
       });
     }
+    if (!post && part === "formation") return json(await courseSummary());
     if (!post && part === "catalog") return json(await catalog());
     if (!post && part === "session") return json(await session());
-    if (post && part === "auth") return json(await authAction(id, await body()));
+    if (post && part === "auth")
+      return json(await authAction(id, await body(), req.headers.get("x-logicalab-return-origin")));
     const u = await member(part === "admin");
     if (part === "admin") {
       if (!post) {

@@ -6,40 +6,24 @@ import { PublicTrail } from "../../ui/landing";
 import { Policy } from "../../ui/policies";
 import { AccountPage } from "../../ui/account";
 import { Workspace } from "../../ui/workspace";
+import { pageNames, accountPages } from "../../lib/routes";
 export const dynamic = "force-dynamic";
-const names: Record<string, string> = {
-  trilha: "Trilha de aprendizagem",
-  login: "Entrar",
-  cadastro: "Criar conta",
-  "recuperar-senha": "Recuperar acesso",
-  dashboard: "Painel do aluno",
-  curso: "Curso",
-  aula: "Aula",
-  quiz: "Quiz",
-  exercicio: "Exercício",
-  progresso: "Meu progresso",
-  perfil: "Meu perfil",
-  feedback: "Avaliar a experiência",
-  admin: "Administração",
-  termos: "Termos de uso",
-  privacidade: "Política de privacidade",
-  notificacoes: "Notificações",
-  "boas-vindas": "Primeiro acesso",
-  "nova-senha": "Nova senha",
-  confirmar: "Confirmar e-mail",
-};
 export async function generateMetadata({ params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
-  return { title: names[path[0]] || "Página não encontrada" };
+  return { title: pageNames[path[0]] || "Página não encontrada" };
 }
 export default async function Page({ params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
   const part = path[0];
-  if (!names[part]) notFound();
-  if (["login", "cadastro", "recuperar-senha", "nova-senha", "confirmar"].includes(part))
-    return <AccountPage kind={part} />;
+  if (!pageNames[part]) notFound();
+  if (accountPages.includes(part)) return <AccountPage kind={part} />;
   const u = await identity(),
     p = u ? await account(u) : null;
+  if (part === "matricula") {
+    if (!u && !(await cookies()).get("ll_refresh")) redirect("/login?next=%2Fmatricula");
+    if (p?.active) redirect("/dashboard");
+    return <AccountPage kind="matricula" />;
+  }
   if (part === "trilha")
     return <PublicTrail modules={await catalog()} id={path[1]} member={!!p?.active} />;
   if (part === "termos" || part === "privacidade")
@@ -50,7 +34,7 @@ export default async function Page({ params }: { params: Promise<{ path: string[
   }
   if (!p) {
     if (hasProvider()) return <Workspace path={path} />;
-    redirect("/cadastro");
+    redirect("/matricula");
   }
   if (!p.active) redirect("/login");
   if (part === "admin" && p.role !== "admin") redirect("/dashboard");

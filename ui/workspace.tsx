@@ -39,13 +39,15 @@ export function Workspace({ path }: { path: string[] }) {
   useEffect(() => {
     if (sess.value && !p) {
       location.replace(
-        sess.value.identity ? "/cadastro" : "/login?next=" + encodeURIComponent(location.pathname),
+        sess.value.identity ? "/matricula" : "/login?next=" + encodeURIComponent(location.pathname),
       );
+    } else if (p && part === "admin" && p.role !== "admin") {
+      location.replace("/dashboard");
     } else if (p && !p.onboarded && part !== "boas-vindas") {
       location.replace("/boas-vindas");
     }
   }, [sess.value, p, part]);
-  if (!p || !data.value)
+  if (!p || !data.value || (isAdmin && p.role !== "admin"))
     return (
       <>
         <div className="wrapper loading-brand">
@@ -77,8 +79,7 @@ export function Workspace({ path }: { path: string[] }) {
   async function logout() {
     try {
       const result = await api("auth/logout", {});
-      if (window.top) window.open(result.next, "_top");
-      else location.assign(result.next);
+      location.assign(result.next);
     } catch (e: any) {
       err(e.message);
     }
