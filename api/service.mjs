@@ -23,9 +23,18 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "GET" && req.method !== "POST") return fail(res, 405, "Método não permitido.");
-  const route = req.query.route;
+  const incoming = new URL(req.url, "https://logicalab.invalid");
+  const originalPath = incoming.pathname.startsWith("/api/") ? incoming.pathname.slice(5) : "";
+  const captured = incoming.searchParams.get("route") || req.query?.route;
+  const route = originalPath && originalPath !== "service" ? originalPath :
+    Array.isArray(captured) ? captured.join("/") : captured;
   if (typeof route !== "string") return fail(res, 404, "Recurso não encontrado.");
-  const parts = route.split("/");
+  let parts;
+  try {
+    parts = route.split("/").map(decodeURIComponent);
+  } catch {
+    return fail(res, 404, "Recurso não encontrado.");
+  }
   if (
     parts.length > 3 ||
     !groups.has(parts[0]) ||
@@ -54,7 +63,7 @@ export default async function handler(req, res) {
     if (origin) headers.set("X-Logicalab-Return-Origin", origin);
   }
   const destination = new URL("/api/" + parts.map(encodeURIComponent).join("/"), upstreamOrigin);
-  if (parts[0] === "access" && req.query.to === "cadastro")
+  if (parts[0] === "access" && incoming.searchParams.get("to") === "cadastro")
     destination.searchParams.set("to", "cadastro");
   try {
     const reply = await fetch(destination, {

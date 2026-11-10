@@ -3,8 +3,17 @@
   "framework": null,
   "buildCommand": "node scripts/build-vercel.mjs",
   "outputDirectory": "dist-vercel",
-  "rewrites": [
-    { "source": "/api/:path+", "destination": "/api/service?route=:path+" },
-    { "source": "/((?!api/|assets/|media/|favicon\\.svg).*)", "destination": "/index.html" }
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/service?route=$1"
+    },
+    {
+      "src": "/((?!api/|assets/|media/|favicon\\.svg).*)",
+      "dest": "/index.html"
+    }
   ]
 }
