@@ -210,7 +210,7 @@ export function Workspace({ path }: { path: string[] }) {
           ) : isAdmin && p.role === "admin" ? (
             id === "usuarios" ? (
               <AdminUsers
-                id={path[2]}
+                userIdSegment={path[2]}
                 count={(state.modules as Module[]).flatMap((x) => x.lessons).length}
               />
             ) : id === "conteudos" ? (

@@ -21,3 +21,12 @@ export const pageNames: Record<string, string> = {
   confirmar: "Confirmar e-mail",
 };
 export const accountPages = ["login", "cadastro", "recuperar-senha", "nova-senha", "confirmar"];
+
+export function adminUserHref(id: string) {
+  return "/admin/usuarios/" + encodeURIComponent(id);
+}
+
+export function adminUsersApiPath(userIdSegment?: string) {
+  // The page routers already supply the ID as a URL path segment.
+  return userIdSegment ? "admin/users/" + userIdSegment : "admin/users";
+}

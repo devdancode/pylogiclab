@@ -5,6 +5,7 @@ import { categories, dateBR, percentage, type Module, type Row } from "../lib/mo
 import { Progress } from "./study";
 import { Gradebook } from "./gradebook";
 import { formatGrade } from "../lib/grades";
+import { adminUserHref, adminUsersApiPath } from "../lib/routes";
 const metricLabels: Record<string, string> = {
   users: "Participantes cadastrados",
   active: "Ativos nos últimos 30 dias",
@@ -130,7 +131,7 @@ export function Reports({ home = false }: { home?: boolean }) {
               people.value.slice(0, 5).map((p: Row) => (
                 <a
                   className="simple-row"
-                  href={"/admin/usuarios/" + encodeURIComponent(p.id)}
+                  href={adminUserHref(p.id)}
                   key={p.id}
                 >
                   <Icon name="user" />
@@ -229,8 +230,9 @@ export function Reports({ home = false }: { home?: boolean }) {
     </>
   );
 }
-export function AdminUsers({ id, count }: { id?: string; count: number }) {
-  const r = useRemote("admin/users" + (id ? "/" + encodeURIComponent(id) : "")),
+export function AdminUsers({ userIdSegment, count }: { userIdSegment?: string; count: number }) {
+  const usersPath = adminUsersApiPath(userIdSegment);
+  const r = useRemote(usersPath),
     [query, search] = useState(""),
     [role, setRole] = useState("aluno"),
     [active, activate] = useState(1),
@@ -243,7 +245,7 @@ export function AdminUsers({ id, count }: { id?: string; count: number }) {
     }
   }, [r.value]);
   if (!r.value) return r.error ? <Notice text={r.error} /> : <Loading />;
-  if (id) {
+  if (userIdSegment) {
     const p = r.value.person;
     return (
       <>
@@ -274,7 +276,7 @@ export function AdminUsers({ id, count }: { id?: string; count: number }) {
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                const v = await api("admin/users/" + encodeURIComponent(id), { role, active });
+                const v = await api(usersPath, { role, active });
                 note(v.message);
                 err("");
               } catch (e: any) {
@@ -346,7 +348,7 @@ export function AdminUsers({ id, count }: { id?: string; count: number }) {
             {list.map((p) => (
               <tr key={p.id}>
                 <td>
-                  <a href={"/admin/usuarios/" + encodeURIComponent(p.id)}>{p.name}</a>
+                  <a href={adminUserHref(p.id)}>{p.name}</a>
                   <small>{p.email}</small>
                 </td>
                 <td>{p.phone}</td>
